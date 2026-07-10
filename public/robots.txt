@@ -1,0 +1,21 @@
+# Allow all crawlers, including AI/LLM crawlers, to index the site.
+User-agent: *
+Allow: /
+
+# AI crawlers (explicit — welcome)
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-Web
+Allow: /
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://entropia-studios.com/sitemap-index.xml

@@ -1,0 +1,133 @@
+---
+import { site } from '../data/site.js';
+import { locales, localeNames, useTranslations } from '../i18n/ui.js';
+
+const { locale = 'en', subpath = '' } = Astro.props;
+const t = useTranslations(locale);
+const home = `/${locale}/`;
+
+const links = [
+  { href: home, label: t('nav.work') },
+  { href: `${home}about`, label: t('nav.about') },
+  { href: `${home}contact`, label: t('nav.contact') },
+];
+const langHref = (l) => `/${l}/${subpath ? subpath + '/' : ''}`;
+---
+
+<header class="navbar">
+  <div class="padding-global">
+    <div class="navbar-inner">
+      <a href={home} class="brand" aria-label={`${site.name} — home`}>
+        <img src="/images/logo.png" alt="" width="26" height="26" />
+        <span class="brand-word">{site.name}</span>
+      </a>
+
+      <div class="navbar-right">
+        <nav aria-label="Primary">
+          <ul class="nav-list">
+            {links.map((l) => (
+              <li><a href={l.href} class="nav-link">{l.label}</a></li>
+            ))}
+          </ul>
+        </nav>
+        <div class="lang" aria-label="Language">
+          {locales.map((l, i) => (
+            <>
+              {i > 0 && <span class="lang-sep" aria-hidden="true">/</span>}
+              <a href={langHref(l)} class="lang-link" aria-current={l === locale ? 'true' : undefined}>
+                {localeNames[l]}
+              </a>
+            </>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<style>
+  .navbar {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 1000;
+    padding-block: 1.1rem;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0));
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .navbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-weight: 700;
+    font-size: 0.98rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .brand img {
+    width: 24px;
+    height: 24px;
+  }
+  .navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+  .nav-list {
+    display: flex;
+    gap: 1.75rem;
+    margin: 0;
+  }
+  .nav-link {
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0.8;
+    transition: opacity 0.2s var(--ease);
+  }
+  .nav-link:hover {
+    opacity: 1;
+  }
+  .lang {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+  }
+  .lang-link {
+    opacity: 0.5;
+    transition: opacity 0.2s var(--ease);
+  }
+  .lang-link:hover {
+    opacity: 0.85;
+  }
+  .lang-link[aria-current='true'] {
+    opacity: 1;
+    color: var(--red);
+  }
+  .lang-sep {
+    opacity: 0.3;
+  }
+  @media (max-width: 768px) {
+    .navbar-right {
+      gap: 1.1rem;
+    }
+    .nav-list {
+      gap: 1rem;
+    }
+    .nav-link {
+      font-size: 0.82rem;
+    }
+  }
+  @media (max-width: 560px) {
+    .nav-list {
+      display: none;
+    }
+  }
+</style>

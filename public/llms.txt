@@ -1,0 +1,32 @@
+# Entropía Studios
+
+> Entropía Studios is a Madrid-based film and series production company founded by Sebastián Cepeda and Javier Krause. It develops and produces feature films, documentaries, series and docuseries with a clear international vocation, believing in entropy as a fertile territory where powerful ideas emerge from chaos. Contact: info@entropia-studios.com
+
+The site is bilingual (English, Spanish) with parallel URLs under /en/ and /es/.
+
+## Main pages
+- [Work (home)](https://entropia-studios.com/en/): full list of projects
+- [About](https://entropia-studios.com/en/#about): company statement and team
+- [Contact](https://entropia-studios.com/en/#contact): offices and email info@entropia-studios.com
+
+## Projects
+- [The Last Lap](https://entropia-studios.com/en/work/the-last-lap/) — Series, in production
+- [Las Heras](https://entropia-studios.com/en/work/las-heras/) — Feature film, in pre-production
+- [Foodball](https://entropia-studios.com/en/work/foodball/) — Series, in development
+- [Body Hunters](https://entropia-studios.com/en/work/body-hunters/) — Series, in development
+- [Inner Portrait](https://entropia-studios.com/en/work/inner-portrait/) — Documentary, 2025 (Disney+)
+- [Bionica](https://entropia-studios.com/en/work/bionica/) — Feature film, 2025
+- [You and Everything Else](https://entropia-studios.com/en/work/you-and-everything-else/) — Series, 2025 (Netflix, Kakao Entertainment)
+- [Villa Malaga](https://entropia-studios.com/en/work/villa-malaga/) — Documentary, 2024. Winner of the Silver Biznaga at the 27th Málaga Film Festival
+- [NCCR Robotics](https://entropia-studios.com/en/work/nccr-robotics/) — Documentary, 2023
+- [El Color del Cielo](https://entropia-studios.com/en/work/el-color-del-cielo/) — Feature film, 2022
+- [Contigo Capitán](https://entropia-studios.com/en/work/contigo-capitan/) — Series, 2022 (Netflix)
+- [L'Arminuta](https://entropia-studios.com/en/work/larminuta/) — Feature film, 2021 (HBO)
+- [Singularity](https://entropia-studios.com/en/work/singularity/) — Feature film, 2017 (starring John Cusack)
+- [Himmelfahrtskommando](https://entropia-studios.com/en/work/himmelfahrtskommando/) — Feature film, 2013
+
+## Offices
+- Spain: Entropía Studios S.L., Calle Princesa 31, 2-2, 28008 Madrid
+- Switzerland: Viven Film AG, Kernstrasse 57, 8004 Zurich
+- Netherlands: KFP, Mezenlaan 5, 1403BP Bussum
+- Italy: Garage Entertainment SRL, Viale del Vignola 111, 00196 Roma

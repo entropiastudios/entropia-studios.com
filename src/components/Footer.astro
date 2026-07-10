@@ -1,0 +1,141 @@
+---
+import { site } from '../data/site.js';
+import { useTranslations } from '../i18n/ui.js';
+
+const { locale = 'en' } = Astro.props;
+const t = useTranslations(locale);
+const year = new Date().getFullYear();
+const hq = site.offices[0];
+---
+
+<footer class="footer">
+  <div class="padding-global">
+    <div class="container">
+      <div class="footer-top">
+        <address class="footer-addr">
+          <strong>{site.legalName}</strong>
+          <span>{hq.street}</span>
+          <span>{hq.city}</span>
+          <span>{t(`country.${hq.country}`)}</span>
+        </address>
+        <div class="footer-right">
+          <a href={`mailto:${site.email}`} class="footer-email">{site.email}</a>
+          {site.socials?.length > 0 && (
+            <div class="footer-social">
+              {site.socials.map((s) => (
+                <a href={s.url} target="_blank" rel="noopener noreferrer">{s.name}</a>
+              ))}
+            </div>
+          )}
+          <div class="footer-links">
+            <button type="button" class="cookie-settings" onclick="window.entropiaOpenCookies && window.entropiaOpenCookies()">
+              {t('cookie.settings')}
+            </button>
+            <a href={`/${locale}/privacy/`}>{t('footer.privacy')}</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© {year} {site.legalName}</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px dashed var(--line);
+    padding-block: 3rem 2.5rem;
+    margin-top: 5rem;
+  }
+  .footer-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 2rem;
+    flex-wrap: wrap;
+    padding-bottom: 2.5rem;
+  }
+  .footer-addr {
+    font-style: normal;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    line-height: 1.6;
+    font-size: 0.92rem;
+  }
+  .footer-addr strong {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+  .footer-addr span {
+    color: var(--grey);
+  }
+  .footer-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1rem;
+    text-align: right;
+  }
+  .footer-email {
+    font-size: 1.05rem;
+    font-weight: 500;
+    transition: color 0.2s var(--ease);
+  }
+  .footer-email:hover {
+    color: var(--red);
+  }
+  .footer-social {
+    display: flex;
+    gap: 1.25rem;
+    font-size: 0.9rem;
+  }
+  .footer-social a {
+    transition: color 0.2s var(--ease);
+  }
+  .footer-social a:hover {
+    color: var(--red);
+  }
+  .footer-links {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    font-size: 0.82rem;
+    color: var(--grey);
+  }
+  .footer-links a:hover {
+    color: var(--white);
+  }
+  .cookie-settings {
+    font-family: inherit;
+    font-size: inherit;
+    color: var(--grey);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: color 0.2s var(--ease);
+  }
+  .cookie-settings:hover {
+    color: var(--white);
+  }
+  .footer-bottom {
+    border-top: 1px solid var(--line);
+    padding-top: 1.75rem;
+    font-size: 0.82rem;
+    color: var(--grey);
+  }
+  @media (max-width: 620px) {
+    .footer-top {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .footer-right {
+      align-items: flex-start;
+      text-align: left;
+    }
+  }
+</style>

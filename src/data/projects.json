@@ -1,0 +1,618 @@
+[
+  {
+    "slug": "the-last-lap",
+    "title": "The Last Lap",
+    "category": "Series",
+    "status": "production",
+    "image": "/images/projects/the-last-lap-poster-1000.webp",
+    "thumb": "/images/projects/the-last-lap-thumb-1280.webp",
+    "credits": [
+      [
+        "producedBy",
+        "Entropía Studios"
+      ],
+      [
+        "executiveProducers",
+        "Javier Krause, Sebastián Cepeda, Silvina Dell'Occhio"
+      ],
+      [
+        "writtenBy",
+        "Javier Krause"
+      ],
+      [
+        "directedBy",
+        "Javier Krause"
+      ],
+      [
+        "runtime",
+        "4 x 30'"
+      ]
+    ],
+    "thumbSrcset": "/images/projects/the-last-lap-thumb-640.webp 640w, /images/projects/the-last-lap-thumb-1280.webp 960w",
+    "thumbW": 960,
+    "thumbH": 540,
+    "imageSrcset": "/images/projects/the-last-lap-poster-500.webp 500w, /images/projects/the-last-lap-poster-1000.webp 960w",
+    "imageW": 960,
+    "imageH": 540
+  },
+  {
+    "slug": "las-heras",
+    "title": "Las Heras",
+    "category": "Film",
+    "status": "preproduction",
+    "image": "/images/projects/las-heras-poster-1000.webp",
+    "thumb": "/images/projects/las-heras-thumb-1280.webp",
+    "credits": [
+      [
+        "producedBy",
+        "Entropía Studios, 89 Productions, Viven Film, Krause FP"
+      ],
+      [
+        "executiveProducers",
+        "Sebastián Cepeda"
+      ],
+      [
+        "producers",
+        "Sebastián Cepeda, Javier Krause, Joan-Marc Zapatta, Ivan Geisser, Agustina Leoni, Marcelo Leoni, Silvina Dell'Occhio"
+      ],
+      [
+        "starring",
+        "Agustina Leoni"
+      ],
+      [
+        "writtenBy",
+        "Javier Krause, Joan-Marc Zapata, Agustina Leoni"
+      ],
+      [
+        "directedBy",
+        "Joan-Marc Zapata, Javier Krause"
+      ],
+      [
+        "runtime",
+        "95'"
+      ]
+    ],
+    "thumbSrcset": "/images/projects/las-heras-thumb-640.webp 640w, /images/projects/las-heras-thumb-1280.webp 1280w",
+    "thumbW": 1280,
+    "thumbH": 714,
+    "imageSrcset": "/images/projects/las-heras-poster-500.webp 500w, /images/projects/las-heras-poster-1000.webp 1000w",
+    "imageW": 1000,
+    "imageH": 558
+  },
+  {
+    "slug": "foodball",
+    "title": "Foodball",
+    "category": "Series",
+    "status": "development",
+    "image": "/images/projects/foodball-poster-1000.webp",
+    "thumb": "/images/projects/foodball-thumb-1280.webp",
+    "credits": [
+      [
+        "producedBy",
+        "DeCulto, Entropía Studios"
+      ],
+      [
+        "executiveProducers",
+        "Hernán Caffiero, Sebastián Cepeda, Paula Guzmán, Javier Krause, Antonio Haye Schmitt"
+      ],
+      [
+        "writtenBy",
+        "Hernán Caffiero, Javier Krause"
+      ],
+      [
+        "directedBy",
+        "Hernán Caffiero, Javier Krause"
+      ],
+      [
+        "runtime",
+        "10 x 30'"
+      ]
+    ],
+    "thumbSrcset": "/images/projects/foodball-thumb-640.webp 640w, /images/projects/foodball-thumb-1280.webp 1280w",
+    "thumbW": 1280,
+    "thumbH": 720,
+    "imageSrcset": "/images/projects/foodball-poster-500.webp 500w, /images/projects/foodball-poster-1000.webp 1000w",
+    "imageW": 1000,
+    "imageH": 563
+  },
+  {
+    "slug": "body-hunters",
+    "title": "Body Hunters",
+    "category": "Series",
+    "status": "development",
+    "image": "/images/projects/body-hunters-poster-1000.webp",
+    "thumb": "/images/projects/body-hunters-thumb-1280.webp",
+    "credits": [
+      [
+        "producedBy",
+        "Tharsis Films, Viven Film"
+      ],
+      [
+        "executiveProducers",
+        "Marcos Moreno, Sindy Ramos, Sebastian Cepeda, Javier Krause"
+      ],
+      [
+        "writtenBy",
+        "Marcos Moreno, Sindy Ramos"
+      ],
+      [
+        "directedBy",
+        "Marcos Moreno"
+      ],
+      [
+        "runtime",
+        "10 x 52'"
+      ]
+    ],
+    "thumbSrcset": "/images/projects/body-hunters-thumb-640.webp 640w, /images/projects/body-hunters-thumb-1280.webp 1280w",
+    "thumbW": 1280,
+    "thumbH": 853,
+    "imageSrcset": "/images/projects/body-hunters-poster-500.webp 500w, /images/projects/body-hunters-poster-1000.webp 1000w",
+    "imageW": 1000,
+    "imageH": 667
+  },
+  {
+    "slug": "inner-portrait",
+    "title": "Inner Portrait",
+    "category": "Doc",
+    "status": "2025",
+    "image": "/images/projects/inner-portrait-poster-1000.webp",
+    "thumb": "/images/projects/inner-portrait-thumb-1280.webp",
+    "credits": [
+      [
+        "producedBy",
+        "Largo Films, Orisono, Stranger Than Fiction Films"
+      ],
+      [
+        "producers",
+        "Sami Arpa, Javier Krause, Dragan Gavric, Timothy Ross"
+      ],
+      [
+        "distribution",
+        "Disney+"
+      ],
+      [
+        "starring",
+        "Refik Anadol, Sigurbjörn Ragnarsson, Esther Wahu Karanja, Tuikuru Yawanawa, Sahar Amin, Gillian Burke"
+      ],
+      [
+        "writtenBy",
+        "Rafet Fatih Ozgur"
+      ],
+      [
+        "directedBy",
+        "Jennifer Peedom"
+      ],
+      [
+        "runtime",
+        "22 min."
+      ]
+    ],
+    "thumbSrcset": "/images/projects/inner-portrait-thumb-640.webp 640w, /images/projects/inner-portrait-thumb-1280.webp 1200w",
+    "thumbW": 1200,
+    "thumbH": 674,
+    "imageSrcset": "/images/projects/inner-portrait-poster-500.webp 500w, /images/projects/inner-portrait-poster-1000.webp 1000w",
+    "imageW": 1000,
+    "imageH": 1413
+  },
+  {
+    "slug": "bionica",
+    "title": "Bionica",
+    "category": "Film",
+    "status": "2025",
+    "image": "/images/projects/bionica-poster-1000.webp",
+    "thumb": "/images/projects/bionica-thumb-640.webp",
+    "credits": [
+      [
+        "producedBy",
+        "Rispo Films"
+      ],
+      [
+        "executiveProducers",
+        "Rosana Ojeda, Marcela Avalos"
+      ],
+      [
+        "producers",
+        "Sebastián Perillo, Rosana Ojeda, Javier Krause"
+      ],
+      [
+        "starring",
+        "Fabián Arenillas, Julia Martínez Rubio, Luciana Grasso, Santiago Pedrero"
+      ],
+      [
+        "writtenBy",
+        "Sebastián Perillo"
+      ],
+      [
+        "directedBy",
+        "Sebastián Perillo"
+      ],
+      [
+        "runtime",
+        "90 min."
+      ]
+    ],
+    "thumbSrcset": "/images/projects/bionica-thumb-640.webp 622w",
+    "thumbW": 622,
+    "thumbH": 263,
+    "imageSrcset": "/images/projects/bionica-poster-500.webp 500w, /images/projects/bionica-poster-1000.webp 565w",
+    "imageW": 565,
+    "imageH": 807
+  },
+  {
+    "slug": "you-and-everything-else",
+    "title": "You and Everything Else",
+    "category": "Series",
+    "status": "2025",
+    "image": "/images/projects/you-and-everything-else-poster-1000.webp",
+    "thumb": "/images/projects/you-and-everything-else-thumb-1280.webp",
+    "credits": [
+      [
+        "producedBy",
+        "Kakao Entertainment"
+      ],
+      [
+        "executiveProducers",
+        "Seonhye Bae, Dong Six Kim, Sebastian Cepeda (Swiss Producer)"
+      ],
+      [
+        "serviceProduction",
+        "Studio Flow, Viven Film"
+      ],
+      [
+        "distribution",
+        "Netflix"
+      ],
+      [
+        "starring",
+        "Kim Go-eun, Park Ji-hyun, Kim Gun-woo"
+      ],
+      [
+        "writtenBy",
+        "Song Hye-jin"
+      ],
+      [
+        "directedBy",
+        "Jo Yeong-min"
+      ],
+      [
+        "releaseDate",
+        "September 16, 2025"
+      ],
+      [
+        "runtime",
+        "15 x 50'"
+      ]
+    ],
+    "thumbSrcset": "/images/projects/you-and-everything-else-thumb-640.webp 640w, /images/projects/you-and-everything-else-thumb-1280.webp 1280w",
+    "thumbW": 1280,
+    "thumbH": 720,
+    "imageSrcset": "/images/projects/you-and-everything-else-poster-500.webp 500w, /images/projects/you-and-everything-else-poster-1000.webp 1000w",
+    "imageW": 1000,
+    "imageH": 1429
+  },
+  {
+    "slug": "villa-malaga",
+    "title": "Villa Malaga",
+    "category": "Doc",
+    "status": "2024",
+    "image": "/images/projects/villa-malaga-poster-1000.webp",
+    "thumb": "/images/projects/villa-malaga-thumb-1280.webp",
+    "credits": [
+      [
+        "producedBy",
+        "Eterio Ortega Santillana, Viven Film, Canal Sur"
+      ],
+      [
+        "executiveProducers",
+        "Eterio Ortega Santillana, Maria Vallejo, Sebastian Cepeda"
+      ],
+      [
+        "starring",
+        "Stefan Persili, Javier Krauel, Juan Muñoz, Jose Manuel Moreno, Jonas Tofterup, Adriana Rojo"
+      ],
+      [
+        "writtenBy",
+        "Eterio Ortega Santillana"
+      ],
+      [
+        "directedBy",
+        "Eterio Ortega Santillana"
+      ],
+      [
+        "releaseDate",
+        "April 3, 2024"
+      ],
+      [
+        "runtime",
+        "93'"
+      ]
+    ],
+    "video": {
+      "provider": "vimeo",
+      "id": "913249805"
+    },
+    "thumbSrcset": "/images/projects/villa-malaga-thumb-640.webp 640w, /images/projects/villa-malaga-thumb-1280.webp 1280w",
+    "thumbW": 1280,
+    "thumbH": 544,
+    "imageSrcset": "/images/projects/villa-malaga-poster-500.webp 500w, /images/projects/villa-malaga-poster-1000.webp 1000w",
+    "imageW": 1000,
+    "imageH": 1429
+  },
+  {
+    "slug": "nccr-robotics",
+    "title": "NCCR Robotics",
+    "category": "Doc",
+    "status": "2023",
+    "image": "/images/projects/nccr-robotics-poster-500.webp",
+    "thumb": "/images/projects/nccr-robotics-thumb-640.webp",
+    "credits": [
+      [
+        "producedBy",
+        "Viven Film, Swiss National Science Foundation"
+      ],
+      [
+        "executiveProducers",
+        "Sebastian Cepeda, Neva Tres, Sofia Treviño"
+      ],
+      [
+        "starring",
+        "Dario Floreano, Margarita Chli, Stephanie Lacour, Silvestro Micera, Davide Scaramuzza, Pierre Dillenbourg, Barbara Bruno"
+      ],
+      [
+        "writtenBy",
+        "Gianni Forteleoni"
+      ],
+      [
+        "directedBy",
+        "Gianni Forteleoni"
+      ],
+      [
+        "releaseDate",
+        "April 3, 2023"
+      ],
+      [
+        "runtime",
+        "45'"
+      ]
+    ],
+    "video": {
+      "provider": "vimeo",
+      "id": "776512489"
+    },
+    "thumbSrcset": "/images/projects/nccr-robotics-thumb-640.webp 500w",
+    "thumbW": 500,
+    "thumbH": 254,
+    "imageSrcset": "/images/projects/nccr-robotics-poster-500.webp 500w",
+    "imageW": 500,
+    "imageH": 254
+  },
+  {
+    "slug": "el-color-del-cielo",
+    "title": "El Color del Cielo",
+    "category": "Film",
+    "status": "2022",
+    "image": "/images/projects/el-color-del-cielo-poster-1000.webp",
+    "thumb": "/images/projects/el-color-del-cielo-thumb-1280.webp",
+    "credits": [
+      [
+        "producedBy",
+        "89 Productions, Arnold Films, Orisono"
+      ],
+      [
+        "producers",
+        "Ivan Geisser, Guillem Luna, Timothy Ross, Alexander Stratigenas, Javier Krause"
+      ],
+      [
+        "distribution",
+        "Begin Again Films"
+      ],
+      [
+        "starring",
+        "Marta Etura, Francesc Garrido, Carlos Leal, Agustina Leoni, Daniel Rohr"
+      ],
+      [
+        "writtenBy",
+        "Joan-Marc Zapata, Lluís Van Eeckhout"
+      ],
+      [
+        "directedBy",
+        "Joan-Marc Zapata"
+      ],
+      [
+        "runtime",
+        "89 min."
+      ]
+    ],
+    "thumbSrcset": "/images/projects/el-color-del-cielo-thumb-640.webp 640w, /images/projects/el-color-del-cielo-thumb-1280.webp 1280w",
+    "thumbW": 1280,
+    "thumbH": 438,
+    "imageSrcset": "/images/projects/el-color-del-cielo-poster-500.webp 500w, /images/projects/el-color-del-cielo-poster-1000.webp 1000w",
+    "imageW": 1000,
+    "imageH": 1415
+  },
+  {
+    "slug": "contigo-capitan",
+    "title": "Contigo Capitán",
+    "category": "Series",
+    "status": "2022",
+    "image": "/images/projects/contigo-capitan-poster-500.webp",
+    "thumb": "/images/projects/contigo-capitan-thumb-1280.webp",
+    "credits": [
+      [
+        "producedBy",
+        "Torneos, Netflix"
+      ],
+      [
+        "executiveProducers",
+        "Silvina Dell'Occhio, Delia García, Javier Krause, Martín Manrupe, Leo Ribeiro"
+      ],
+      [
+        "distribution",
+        "Netflix"
+      ],
+      [
+        "starring",
+        "Nikko Ponce, Toño Vega, Tatiana Espinoza, Rodrigo Palacios"
+      ],
+      [
+        "directedBy",
+        "Javier Fuentes-León, Daniel Vega Vidal"
+      ],
+      [
+        "runtime",
+        "6 x 45'"
+      ]
+    ],
+    "thumbSrcset": "/images/projects/contigo-capitan-thumb-640.webp 640w, /images/projects/contigo-capitan-thumb-1280.webp 1280w",
+    "thumbW": 1280,
+    "thumbH": 720,
+    "imageSrcset": "/images/projects/contigo-capitan-poster-500.webp 451w",
+    "imageW": 451,
+    "imageH": 633
+  },
+  {
+    "slug": "larminuta",
+    "title": "L'Arminuta",
+    "category": "Film",
+    "status": "2021",
+    "image": "/images/projects/larminuta-poster-1000.webp",
+    "thumb": "/images/projects/larminuta-thumb-1280.webp",
+    "credits": [
+      [
+        "producedBy",
+        "Maro Film, Baires Produzioni, KAF Suisse, Rai Cinema"
+      ],
+      [
+        "executiveProducers",
+        "Javier Krause, Fabrizio Manzollino"
+      ],
+      [
+        "producers",
+        "Roberto Sbarigia Manuel Tedesco, Maurizio Tedesco"
+      ],
+      [
+        "distribution",
+        "Home Box Office (HBO)"
+      ],
+      [
+        "starring",
+        "Sofia Fiore, Carlotta De Leonardis, Vanessa Scalera, Fabrizio Ferracane, Elena Lietti, Andrea Fuorto"
+      ],
+      [
+        "writtenBy",
+        "Donatella Di Pietrantonio, Monica Zapelli"
+      ],
+      [
+        "directedBy",
+        "Giuseppe Bonito"
+      ],
+      [
+        "runtime",
+        "110 min."
+      ]
+    ],
+    "thumbSrcset": "/images/projects/larminuta-thumb-640.webp 640w, /images/projects/larminuta-thumb-1280.webp 1280w",
+    "thumbW": 1280,
+    "thumbH": 720,
+    "imageSrcset": "/images/projects/larminuta-poster-500.webp 500w, /images/projects/larminuta-poster-1000.webp 1000w",
+    "imageW": 1000,
+    "imageH": 1250
+  },
+  {
+    "slug": "singularity",
+    "title": "Singularity",
+    "category": "Film",
+    "status": "2017",
+    "image": "/images/projects/singularity-poster-500.webp",
+    "thumb": "/images/projects/singularity-thumb-1280.webp",
+    "credits": [
+      [
+        "producedBy",
+        "Voltage Pictures, Vantis Pictures, Calanda Pictures"
+      ],
+      [
+        "executiveProducers",
+        "Sebastian Cepeda, Robert Kouba, Steven Zuber"
+      ],
+      [
+        "starring",
+        "John Cusack, Carmen Argenziano, Eileen Grubba, Julian Schaffner, Jeannine Michêle Wacker, Pavlo Bubryak"
+      ],
+      [
+        "writtenBy",
+        "Robert Kouba, Sebastian Cepeda"
+      ],
+      [
+        "directedBy",
+        "Robert Kouba"
+      ],
+      [
+        "releaseDate",
+        "March 11, 2017"
+      ],
+      [
+        "runtime",
+        "107'"
+      ]
+    ],
+    "video": {
+      "provider": "vimeo",
+      "id": "276244789"
+    },
+    "thumbSrcset": "/images/projects/singularity-thumb-640.webp 640w, /images/projects/singularity-thumb-1280.webp 800w",
+    "thumbW": 800,
+    "thumbH": 334,
+    "imageSrcset": "/images/projects/singularity-poster-500.webp 500w",
+    "imageW": 500,
+    "imageH": 739
+  },
+  {
+    "slug": "himmelfahrtskommando",
+    "title": "Himmelfahrtskommando",
+    "category": "Film",
+    "status": "2013",
+    "image": "/images/projects/himmelfahrtskommando-poster-500.webp",
+    "thumb": "/images/projects/himmelfahrtskommando-thumb-1280.webp",
+    "credits": [
+      [
+        "producedBy",
+        "VisualArts, MB Productions, PMJ Pictures, Guave Studios"
+      ],
+      [
+        "executiveProducers",
+        "Dennis Ledergerber, Manuel Schneider, Sebastian Cepeda, Pedro Joaquim, Sergio Herencias, Jonas Frei"
+      ],
+      [
+        "starring",
+        "Beat Schlatter, Walter Andreas Müller, Andrea Zogg, László I. Kish, Adrian Grabe, Jessica Matzig, Isabelle Flachsmann, Raphael Carlucci, Erich Sommer"
+      ],
+      [
+        "writtenBy",
+        "Dennis Ledergerber, Stefan Millius"
+      ],
+      [
+        "directedBy",
+        "Dennis Ledergerber"
+      ],
+      [
+        "releaseDate",
+        "June 3, 2013"
+      ],
+      [
+        "runtime",
+        "106'"
+      ]
+    ],
+    "video": {
+      "provider": "vimeo",
+      "id": "276409147"
+    },
+    "thumbSrcset": "/images/projects/himmelfahrtskommando-thumb-640.webp 640w, /images/projects/himmelfahrtskommando-thumb-1280.webp 800w",
+    "thumbW": 800,
+    "thumbH": 333,
+    "imageSrcset": "/images/projects/himmelfahrtskommando-poster-500.webp 400w",
+    "imageW": 400,
+    "imageH": 570
+  }
+]

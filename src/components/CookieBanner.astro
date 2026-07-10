@@ -1,0 +1,127 @@
+---
+import { useTranslations } from '../i18n/ui.js';
+
+const { locale = 'en' } = Astro.props;
+const t = useTranslations(locale);
+---
+
+<div id="cookie-banner" class="cookie-banner" hidden role="dialog" aria-label="Cookies" aria-live="polite">
+  <p class="cookie-text">
+    {t('cookie.text')}{' '}
+    <a href={`/${locale}/privacy/`}>{t('footer.privacy')}</a>.
+  </p>
+  <div class="cookie-actions">
+    <button type="button" class="cookie-btn cookie-decline" id="cookie-decline">{t('cookie.decline')}</button>
+    <button type="button" class="cookie-btn cookie-accept" id="cookie-accept">{t('cookie.accept')}</button>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var KEY = 'entropia-consent';
+    var banner = document.getElementById('cookie-banner');
+    if (!banner) return;
+    var accept = document.getElementById('cookie-accept');
+    var decline = document.getElementById('cookie-decline');
+
+    function stored() {
+      try { return localStorage.getItem(KEY); } catch (e) { return null; }
+    }
+    function save(v) {
+      try { localStorage.setItem(KEY, v); } catch (e) {}
+    }
+    function show() { banner.hidden = false; }
+    function hide() { banner.hidden = true; }
+
+    if (!stored()) show();
+
+    accept.addEventListener('click', function () {
+      save('granted');
+      if (window.entropiaLoadGA) window.entropiaLoadGA();
+      hide();
+    });
+    decline.addEventListener('click', function () {
+      save('denied');
+      if (window.gtag) window.gtag('consent', 'update', { analytics_storage: 'denied' });
+      hide();
+    });
+
+    // Re-open from the footer "Cookie settings" link.
+    window.entropiaOpenCookies = show;
+  })();
+</script>
+
+<style>
+  .cookie-banner {
+    position: fixed;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 2000;
+    max-width: 40rem;
+    margin-inline: auto;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1rem 1.25rem;
+    background: #101010;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 12px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+  }
+  .cookie-banner[hidden] {
+    display: none;
+  }
+  .cookie-text {
+    flex: 1;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: rgba(251, 251, 251, 0.85);
+  }
+  .cookie-text a {
+    color: var(--white);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .cookie-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+  .cookie-btn {
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 500;
+    padding: 0.55rem 1.1rem;
+    border-radius: 100px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--white);
+    cursor: pointer;
+    transition: background 0.2s var(--ease), border-color 0.2s var(--ease), color 0.2s var(--ease);
+    white-space: nowrap;
+  }
+  .cookie-decline:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+  .cookie-accept {
+    background: var(--white);
+    border-color: var(--white);
+    color: var(--black);
+    font-weight: 600;
+  }
+  .cookie-accept:hover {
+    background: rgba(255, 255, 255, 0.82);
+    border-color: rgba(255, 255, 255, 0.82);
+  }
+  @media (max-width: 560px) {
+    .cookie-banner {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.9rem;
+    }
+    .cookie-actions {
+      justify-content: flex-end;
+    }
+  }
+</style>

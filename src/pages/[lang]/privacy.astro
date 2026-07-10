@@ -1,0 +1,93 @@
+---
+import Base from '../../layouts/Base.astro';
+import { locales, useTranslations } from '../../i18n/ui.js';
+import { privacy } from '../../i18n/legal.js';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params;
+const t = useTranslations(lang);
+const doc = privacy[lang] || privacy.en;
+---
+
+<Base locale={lang} title={doc.title} description={doc.intro} subpath="privacy">
+  <section class="legal">
+    <div class="padding-global">
+      <div class="legal-inner">
+        <a href={`/${lang}/`} class="back caps">← {t('nav.work')}</a>
+        <h1 class="legal-title">{doc.title}</h1>
+        <p class="legal-updated">{doc.updated}</p>
+        <p class="legal-intro">{doc.intro}</p>
+
+        {
+          doc.sections.map((s) => (
+            <div class="legal-section">
+              <h2>{s.h}</h2>
+              {s.p.map((para) => (
+                <p>{para}</p>
+              ))}
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .legal {
+    padding-top: clamp(7rem, 15vh, 11rem);
+    padding-bottom: 2rem;
+  }
+  .legal-inner {
+    max-width: 44rem;
+    margin-inline: auto;
+  }
+  .back {
+    display: inline-block;
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    color: var(--grey);
+    margin-bottom: 2.5rem;
+    transition: color 0.2s var(--ease);
+  }
+  .back:hover {
+    color: var(--white);
+  }
+  .legal-title {
+    font-weight: 700;
+    font-size: clamp(2rem, 5vw, 3rem);
+    letter-spacing: -0.01em;
+  }
+  .legal-updated {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--grey);
+  }
+  .legal-intro {
+    margin-top: 2rem;
+    font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+    line-height: 1.6;
+    color: rgba(251, 251, 251, 0.9);
+  }
+  .legal-section {
+    margin-top: 2.75rem;
+    padding-top: 2.75rem;
+    border-top: 1px dashed var(--line);
+  }
+  .legal-section h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  .legal-section p {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: rgba(251, 251, 251, 0.82);
+  }
+  .legal-section p + p {
+    margin-top: 0.9rem;
+  }
+</style>

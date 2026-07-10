@@ -1,0 +1,3 @@
+# Netlify redirects
+# Root is served by index.html (client-side language detection).
+# Language-prefixed URLs are static; nothing else to rewrite.

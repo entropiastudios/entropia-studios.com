@@ -1,0 +1,58 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base locale="en" title="Page not found" description="The page you are looking for does not exist.">
+  <section class="notfound">
+    <div class="padding-global">
+      <div class="notfound-inner">
+        <p class="code">404</p>
+        <h1>Page not found</h1>
+        <p class="msg">The page you are looking for doesn’t exist or has moved.</p>
+        <a href="/en/" class="home-link caps">← Back to work</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .notfound {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    padding-top: clamp(7rem, 15vh, 11rem);
+  }
+  .notfound-inner {
+    max-width: 40rem;
+    margin-inline: auto;
+    text-align: center;
+  }
+  .code {
+    font-weight: 700;
+    font-size: clamp(4rem, 14vw, 8rem);
+    line-height: 1;
+    color: var(--red);
+  }
+  .notfound h1 {
+    margin-top: 1rem;
+    font-size: clamp(1.5rem, 4vw, 2.4rem);
+    font-weight: 700;
+  }
+  .msg {
+    margin-top: 1rem;
+    color: var(--grey);
+  }
+  .home-link {
+    display: inline-block;
+    margin-top: 2rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.25rem;
+    transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+  }
+  .home-link:hover {
+    color: var(--red);
+    border-color: var(--red);
+  }
+</style>

@@ -1,0 +1,25 @@
+---
+// Root: detect the visitor's browser language and send them to /en or /es.
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Entropía Studios</title>
+    <link rel="canonical" href="https://entropia-studios.com/en/" />
+    <meta name="robots" content="noindex" />
+    <meta http-equiv="refresh" content="0; url=/en/" />
+    <script is:inline>
+      (function () {
+        var supported = ['en', 'es'];
+        var nav = (navigator.language || 'en').slice(0, 2).toLowerCase();
+        var lang = supported.indexOf(nav) !== -1 ? nav : 'en';
+        location.replace('/' + lang + '/');
+      })();
+    </script>
+  </head>
+  <body>
+    <a href="/en/">Enter site</a>
+  </body>
+</html>

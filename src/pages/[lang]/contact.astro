@@ -1,0 +1,112 @@
+---
+import Base from '../../layouts/Base.astro';
+import { site } from '../../data/site.js';
+import { locales, useTranslations } from '../../i18n/ui.js';
+import { contact } from '../../i18n/contact.js';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params;
+const t = useTranslations(lang);
+const c = contact[lang] || contact.en;
+const mailto = `mailto:${site.email}?subject=Film%20Production`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'ContactPage',
+      name: `${c.heading} — ${site.name}`,
+      url: `${site.url}/${lang}/contact/`,
+      inLanguage: lang,
+      about: {
+        '@type': 'Organization',
+        name: site.legalName,
+        alternateName: site.name,
+        url: `${site.url}/${lang}/`,
+        logo: new URL('/images/logo.png', site.url).href,
+        email: site.email,
+        ...(site.socials?.length ? { sameAs: site.socials.map((s) => s.url) } : {}),
+        contactPoint: { '@type': 'ContactPoint', email: site.email, contactType: 'business inquiries' },
+      },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: t('nav.work'), item: `${site.url}/${lang}/` },
+        { '@type': 'ListItem', position: 2, name: c.heading, item: `${site.url}/${lang}/contact/` },
+      ],
+    },
+  ],
+};
+---
+
+<Base locale={lang} title={c.heading} description={c.paragraphs[0]} jsonLd={jsonLd} subpath="contact">
+  <section class="contact-page">
+    <div class="padding-global">
+      <h1 class="display">{c.heading}</h1>
+
+      <div class="contact-body">
+        {c.paragraphs.map((p) => <p>{p}</p>)}
+        <a class="contact-btn" href={mailto}>
+          {c.cta}
+          <span class="arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .contact-page {
+    padding-top: clamp(6.5rem, 13vh, 9rem);
+    padding-bottom: clamp(4rem, 8vw, 7rem);
+    min-height: 60vh;
+  }
+  .display {
+    font-family: var(--font-display);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 0.95;
+    text-align: center;
+    font-size: clamp(3rem, 12vw, 9rem);
+    padding: clamp(1rem, 3vw, 2.5rem) 0 clamp(2.5rem, 5vw, 4rem);
+  }
+  .contact-body {
+    max-width: 42rem;
+    margin-inline: auto;
+    text-align: center;
+  }
+  .contact-body p {
+    font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+    line-height: 1.55;
+    margin-bottom: 1.5em;
+    color: rgba(251, 251, 251, 0.9);
+  }
+  .contact-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.75rem;
+    padding: 0.85rem 1.6rem;
+    border-radius: 100px;
+    background: var(--white);
+    color: var(--black);
+    font-weight: 600;
+    font-size: 1rem;
+    transition: transform 0.2s var(--ease), background 0.2s var(--ease);
+  }
+  .contact-btn:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.85);
+  }
+  .contact-btn .arrow {
+    transition: transform 0.2s var(--ease);
+  }
+  .contact-btn:hover .arrow {
+    transform: translateX(3px);
+  }
+</style>

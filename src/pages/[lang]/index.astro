@@ -1,0 +1,64 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { site } from '../../data/site.js';
+import projects from '../../data/projects.json';
+import { locales, useTranslations } from '../../i18n/ui.js';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params;
+const t = useTranslations(lang);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  additionalType: 'https://schema.org/MovieProductionCompany',
+  name: site.legalName,
+  alternateName: site.name,
+  url: `${site.url}/${lang}/`,
+  logo: new URL('/images/logo.png', site.url).href,
+  email: site.email,
+  description: t('meta.home.desc'),
+  ...(site.socials?.length ? { sameAs: site.socials.map((s) => s.url) } : {}),
+  address: site.offices.map((o) => ({
+    '@type': 'PostalAddress',
+    name: o.name,
+    streetAddress: o.street,
+    addressLocality: o.city,
+    addressCountry: o.country,
+  })),
+};
+---
+
+<Base locale={lang} description={t('meta.home.desc')} jsonLd={jsonLd} subpath="">
+  <section id="work" class="work" aria-label={t('nav.work')}>
+    <div class="padding-global">
+      <div class="container">
+        <div class="work-list">
+          {projects.map((p, i) => <ProjectCard project={p} locale={lang} index={i} />)}
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .work {
+    padding-top: clamp(7rem, 15vh, 10rem);
+  }
+  .work-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 2rem;
+    row-gap: 3.5rem;
+  }
+  @media (max-width: 768px) {
+    .work-list {
+      grid-template-columns: 1fr;
+      row-gap: 2.5rem;
+    }
+  }
+</style>
