@@ -236,6 +236,10 @@
         "90 min."
       ]
     ],
+    "video": {
+      "provider": "youtube",
+      "id": "Q2W3ppxyTTo"
+    },
     "thumbSrcset": "/images/projects/bionica-thumb-640.webp 622w",
     "thumbW": 622,
     "thumbH": 263,
@@ -288,6 +292,10 @@
         "15 x 50'"
       ]
     ],
+    "video": {
+      "provider": "youtube",
+      "id": "XOuJ4O4cgYg"
+    },
     "thumbSrcset": "/images/projects/you-and-everything-else-thumb-640.webp 640w, /images/projects/you-and-everything-else-thumb-1280.webp 1280w",
     "thumbW": 1280,
     "thumbH": 720,
@@ -428,6 +436,10 @@
         "89 min."
       ]
     ],
+    "video": {
+      "provider": "youtube",
+      "id": "Vk-h0SI-DC4"
+    },
     "thumbSrcset": "/images/projects/el-color-del-cielo-thumb-640.webp 640w, /images/projects/el-color-del-cielo-thumb-1280.webp 1280w",
     "thumbW": 1280,
     "thumbH": 438,
@@ -468,6 +480,10 @@
         "6 x 45'"
       ]
     ],
+    "video": {
+      "provider": "youtube",
+      "id": "gFQk1glIZBM"
+    },
     "thumbSrcset": "/images/projects/contigo-capitan-thumb-640.webp 640w, /images/projects/contigo-capitan-thumb-1280.webp 1280w",
     "thumbW": 1280,
     "thumbH": 720,
@@ -516,6 +532,10 @@
         "110 min."
       ]
     ],
+    "video": {
+      "provider": "youtube",
+      "id": "-C65O48UIA4"
+    },
     "thumbSrcset": "/images/projects/larminuta-thumb-640.webp 640w, /images/projects/larminuta-thumb-1280.webp 1280w",
     "thumbW": 1280,
     "thumbH": 720,
