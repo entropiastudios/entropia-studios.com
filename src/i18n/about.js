@@ -13,8 +13,8 @@ export const about = {
     ],
     teamHeading: 'Team',
     team: [
-      { name: 'Sebastián E. Cepeda', role: 'CEO | Producer' },
-      { name: 'Javier C. Krause', role: 'Producer | Director | Screenwriter' },
+      { name: 'Sebastián E. Cepeda', role: 'CEO | Producer', img: '/images/team/sebastian-cepeda.webp' },
+      { name: 'Javier C. Krause', role: 'Producer | Director | Screenwriter', img: '/images/team/javier-krause.webp' },
     ],
     network:
       'Together, Sebastián E. Cepeda and Javier C. Krause lead a network of four production companies strategically positioned across Europe — a constellation of creative hubs designed to support films wherever they need to be made. Through local partnerships, access to regional incentives, and seasoned crews on the ground, we move fluidly between territories, transforming every location into a home for storytelling.',
@@ -33,8 +33,8 @@ export const about = {
     ],
     teamHeading: 'Equipo',
     team: [
-      { name: 'Sebastián E. Cepeda', role: 'CEO | Productor' },
-      { name: 'Javier C. Krause', role: 'Productor | Director | Guionista' },
+      { name: 'Sebastián E. Cepeda', role: 'CEO | Productor', img: '/images/team/sebastian-cepeda.webp' },
+      { name: 'Javier C. Krause', role: 'Productor | Director | Guionista', img: '/images/team/javier-krause.webp' },
     ],
     network:
       'Juntos, Sebastián E. Cepeda y Javier C. Krause lideran una red de cuatro productoras estratégicamente ubicadas en Europa: una constelación de polos creativos diseñada para acompañar los proyectos allí donde necesiten realizarse. A través de alianzas locales, acceso a incentivos regionales y equipos experimentados sobre el terreno, nos movemos con fluidez entre territorios, convirtiendo cada lugar en un hogar para las historias.',
