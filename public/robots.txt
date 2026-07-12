@@ -19,3 +19,4 @@ User-agent: Google-Extended
 Allow: /
 
 Sitemap: https://entropia-studios.com/sitemap-index.xml
+Sitemap: https://entropia-studios.com/video-sitemap.xml

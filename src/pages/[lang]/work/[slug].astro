@@ -111,6 +111,7 @@ const jsonLd = {
   type="article"
   jsonLd={jsonLd}
   subpath={`work/${project.slug}`}
+  video={videoNode ? { player: videoNode.embedUrl, title: videoNode.name } : null}
 >
   <article class="post">
     <div class="padding-global">

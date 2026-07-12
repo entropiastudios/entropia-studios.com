@@ -1,3 +1,17 @@
-# Netlify redirects
-# Root is served by index.html (client-side language detection).
-# Language-prefixed URLs are static; nothing else to rewrite.
+# Cloudflare redirects. Format: /source /destination status
+#
+# The root "/" is served by index.html (client-side language detection) — not redirected here.
+# Language-prefixed URLs (/en/…, /es/…) are static and need no rewrite.
+#
+# Legacy paths from the previous site → new bilingual structure (301 permanent).
+# NOTE: refine this list from Google Search Console's indexed URLs once the domain is live.
+/about.html      /en/about/     301
+/contact.html    /en/contact/   301
+/index.html      /en/           301
+/about           /en/about/     301
+/contact         /en/contact/   301
+/nosotros        /es/about/     301
+/contacto        /es/contact/   301
+/work            /en/           301
+/projects        /en/           301
+/home            /en/           301
