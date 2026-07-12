@@ -11,14 +11,15 @@ export function getStaticPaths() {
   for (const lang of locales) {
     projects.forEach((project, i) => {
       const next = projects[(i + 1) % projects.length];
-      paths.push({ params: { lang, slug: project.slug }, props: { project, next } });
+      const prev = projects[(i - 1 + projects.length) % projects.length];
+      paths.push({ params: { lang, slug: project.slug }, props: { project, prev, next } });
     });
   }
   return paths;
 }
 
 const { lang } = Astro.params;
-const { project, next } = Astro.props;
+const { project, prev, next } = Astro.props;
 const t = useTranslations(lang);
 
 const category = t(`cat.${project.category}`);
@@ -177,10 +178,16 @@ const jsonLd = {
           )
         }
 
-        <a href={`/${lang}/work/${next.slug}`} class="next-project">
-          <span class="caps next-label">{t('project.next')}</span>
-          <span class="next-title caps">{next.title} →</span>
-        </a>
+        <nav class="project-nav" aria-label="Projects">
+          <a href={`/${lang}/work/${prev.slug}`} class="project-nav__link project-nav__link--prev">
+            <span class="caps project-nav__label">{t('project.prev')}</span>
+            <span class="project-nav__title caps">← {prev.title}</span>
+          </a>
+          <a href={`/${lang}/work/${next.slug}`} class="project-nav__link project-nav__link--next">
+            <span class="caps project-nav__label">{t('project.next')}</span>
+            <span class="project-nav__title caps">{next.title} →</span>
+          </a>
+        </nav>
       </div>
     </div>
   </article>
@@ -380,30 +387,51 @@ const jsonLd = {
     display: block;
   }
 
-  .next-project {
+  .project-nav {
     display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1.5rem 2rem;
     margin-top: clamp(4rem, 9vw, 6rem);
     padding-top: 2.5rem;
     border-top: 1px dashed var(--line);
   }
-  .next-label {
+  .project-nav__link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .project-nav__link--next {
+    text-align: right;
+    align-items: flex-end;
+    margin-left: auto;
+  }
+  .project-nav__label {
     font-size: 0.72rem;
     letter-spacing: 0.14em;
     color: var(--grey);
   }
-  .next-title {
+  .project-nav__title {
     font-weight: 700;
-    font-size: clamp(1.5rem, 3.5vw, 2.4rem);
+    font-size: clamp(1.25rem, 3vw, 2.1rem);
     text-decoration: underline;
     text-decoration-color: transparent;
     text-underline-offset: 4px;
     text-decoration-thickness: 2px;
     transition: text-decoration-color 0.3s var(--ease);
   }
-  .next-project:hover .next-title {
+  .project-nav__link:hover .project-nav__title {
     text-decoration-color: currentColor;
+  }
+  @media (max-width: 560px) {
+    .project-nav {
+      flex-direction: column;
+    }
+    .project-nav__link--next {
+      text-align: left;
+      align-items: flex-start;
+      margin-left: 0;
+    }
   }
 
   @media (max-width: 820px) {
