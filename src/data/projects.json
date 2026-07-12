@@ -53,7 +53,7 @@
       ],
       [
         "producers",
-        "Sebastián Cepeda, Javier Krause, Joan-Marc Zapatta, Ivan Geisser, Agustina Leoni, Marcelo Leoni, Silvina Dell'Occhio"
+        "Sebastián Cepeda, Javier Krause, Joan-Marc Zapatta, Dragan Gavric, Ivan Geisser, Agustina Leoni, Marcelo Leoni"
       ],
       [
         "starring",
@@ -188,6 +188,10 @@
         "22 min."
       ]
     ],
+    "video": {
+      "provider": "youtube",
+      "id": "0KQAFvzXURs"
+    },
     "thumbSrcset": "/images/projects/inner-portrait-thumb-640.webp 640w, /images/projects/inner-portrait-thumb-1280.webp 1200w",
     "thumbW": 1200,
     "thumbH": 674,
