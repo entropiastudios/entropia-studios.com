@@ -40,10 +40,43 @@ const langHref = (l) => `/${l}/${subpath ? subpath + '/' : ''}`;
             </>
           ))}
         </div>
+
+        <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="mobile-menu">
+          <span></span><span></span><span></span>
+        </button>
       </div>
     </div>
   </div>
+
+  <div class="mobile-menu" id="mobile-menu">
+    <div class="padding-global">
+      {links.map((l) => (
+        <a href={l.href} class="mobile-link">{l.label}</a>
+      ))}
+    </div>
+  </div>
 </header>
+
+<script>
+  const tgl = document.querySelector('.nav-toggle');
+  const menu = document.getElementById('mobile-menu');
+  if (tgl && menu) {
+    const close = () => {
+      tgl.setAttribute('aria-expanded', 'false');
+      menu.classList.remove('is-open');
+      document.body.style.overflow = '';
+    };
+    tgl.addEventListener('click', () => {
+      const open = tgl.getAttribute('aria-expanded') === 'true';
+      if (open) return close();
+      tgl.setAttribute('aria-expanded', 'true');
+      menu.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+    });
+    menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', close));
+    window.addEventListener('keydown', (e) => e.key === 'Escape' && close());
+  }
+</script>
 
 <style>
   .navbar {
@@ -114,6 +147,63 @@ const langHref = (l) => `/${l}/${subpath ? subpath + '/' : ''}`;
   .lang-sep {
     opacity: 0.3;
   }
+
+  /* Hamburger toggle + mobile menu (hidden on desktop) */
+  .nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+  .nav-toggle span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: var(--white);
+    transition: transform 0.25s var(--ease), opacity 0.2s var(--ease);
+  }
+  .nav-toggle[aria-expanded='true'] span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+  .nav-toggle[aria-expanded='true'] span:nth-child(2) {
+    opacity: 0;
+  }
+  .nav-toggle[aria-expanded='true'] span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+  .mobile-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.97);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding-block: 0.5rem 1.25rem;
+  }
+  .mobile-menu.is-open {
+    display: block;
+  }
+  .mobile-link {
+    display: block;
+    font-size: 1.35rem;
+    font-weight: 600;
+    padding: 0.85rem 0;
+    border-bottom: 1px dashed var(--line);
+  }
+  .mobile-link:last-child {
+    border-bottom: 0;
+  }
+
   @media (max-width: 768px) {
     .navbar-right {
       gap: 1.1rem;
@@ -128,6 +218,9 @@ const langHref = (l) => `/${l}/${subpath ? subpath + '/' : ''}`;
   @media (max-width: 560px) {
     .nav-list {
       display: none;
+    }
+    .nav-toggle {
+      display: flex;
     }
   }
 </style>
