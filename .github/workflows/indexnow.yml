@@ -1,0 +1,64 @@
+name: IndexNow ping
+
+# Notifies IndexNow-participating search engines (Bing, Yandex, DuckDuckGo, Seznam…)
+# that the site's URLs may have changed. Runs on every deploy to main and once a week.
+# The key is public by design and is hosted at https://entropia-studios.com/<key>.txt
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * 1' # Mondays 06:00 UTC
+  workflow_dispatch:
+
+# No repo write access needed — this only makes outbound HTTP calls.
+permissions:
+  contents: read
+
+concurrency:
+  group: indexnow
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Submit sitemap URLs to IndexNow
+        run: |
+          set -euo pipefail
+          HOST="entropia-studios.com"
+          KEY="4f8e651dfcd7dcfd8cdfe32e217a7baa"
+
+          # On a push, give Cloudflare a moment to publish the new deploy first.
+          if [ "${GITHUB_EVENT_NAME}" = "push" ]; then
+            echo "Waiting 90s for the Cloudflare deploy to go live…"
+            sleep 90
+          fi
+
+          echo "Fetching sitemap…"
+          URLS=$(curl -fsSL "https://${HOST}/sitemap-0.xml" \
+            | grep -oE '<loc>[^<]+</loc>' | sed -E 's#</?loc>##g')
+          COUNT=$(printf '%s\n' "$URLS" | grep -c . || true)
+          echo "Collected ${COUNT} URLs"
+          if [ "${COUNT}" -eq 0 ]; then
+            echo "No URLs found — aborting."; exit 1
+          fi
+
+          PAYLOAD=$(printf '%s\n' "$URLS" | python3 -c "import sys, json; \
+          urls=[l.strip() for l in sys.stdin if l.strip()]; \
+          print(json.dumps({'host': '${HOST}', 'key': '${KEY}', \
+          'keyLocation': 'https://${HOST}/${KEY}.txt', 'urlList': urls}))")
+
+          echo "Submitting to IndexNow…"
+          CODE=$(curl -sS -o /tmp/indexnow_resp -w '%{http_code}' \
+            -X POST 'https://api.indexnow.org/indexnow' \
+            -H 'Content-Type: application/json; charset=utf-8' \
+            --data "${PAYLOAD}")
+          echo "IndexNow responded HTTP ${CODE}"
+          cat /tmp/indexnow_resp 2>/dev/null || true
+          echo
+          # IndexNow returns 200 (accepted) or 202 (accepted, pending key validation).
+          case "${CODE}" in
+            200|202) echo "✓ Submitted ${COUNT} URLs";;
+            *) echo "✗ Unexpected status ${CODE}"; exit 1;;
+          esac
