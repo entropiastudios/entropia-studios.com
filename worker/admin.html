@@ -160,10 +160,6 @@
         <p class="sub">Panel de la web</p>
         <div id="login-error" class="banner error hidden"></div>
         <div id="google-button" style="display: flex; justify-content: center; min-height: 44px"></div>
-        <p class="hint" style="text-align: center; margin-top: 1.25rem">
-          Entrá con tu cuenta de correo del estudio. Solo funcionan las direcciones
-          <b id="login-domain">@entropia-studios.com</b>.
-        </p>
       </div>
     </div>
 
@@ -1250,7 +1246,6 @@
       }
 
       function startGoogleButton(clientId, domain) {
-        $('login-domain').textContent = '@' + domain;
         var tries = 0;
         var draw = function () {
           if (!window.google || !google.accounts || !google.accounts.id) {
