@@ -42,6 +42,8 @@
       .brand { font-weight: 700; font-size: 0.95rem; letter-spacing: 0.12em; text-transform: uppercase; }
       .bar-right { margin-left: auto; display: flex; align-items: center; gap: 0.75rem; }
       .tabs { display: flex; gap: 0.25rem; margin-left: 1rem; }
+      .who { color: var(--grey); font-size: 0.85rem; }
+      @media (max-width: 860px) { .who { display: none; } }
       .tab { border-color: transparent; color: var(--grey); padding: 0.4rem 0.9rem; }
       .tab.is-active { color: var(--white); background: rgba(255, 255, 255, 0.1); }
       @media (max-width: 620px) { .brand { display: none; } .tabs { margin-left: 0; } }
@@ -158,6 +160,10 @@
         <div id="login-error" class="banner error hidden"></div>
         <form id="login-form">
           <div class="field">
+            <label for="email">Email</label>
+            <input id="email" type="email" autocomplete="username" autocapitalize="off" spellcheck="false" required />
+          </div>
+          <div class="field">
             <label for="password">Contraseña</label>
             <input id="password" type="password" autocomplete="current-password" required />
           </div>
@@ -170,13 +176,19 @@
     <div id="view-setup" class="wrap hidden" style="max-width: 42rem; padding-top: 12vh">
       <div class="panel">
         <h1>Falta un paso de configuración</h1>
-        <p class="sub">El panel ya está publicado, pero todavía no tiene la contraseña ni el permiso para guardar.</p>
+        <p class="sub">El panel ya está publicado, pero todavía no tiene las contraseñas ni el permiso para guardar.</p>
         <ol class="steps">
           <li>Entrá a Cloudflare → <b>Workers &amp; Pages</b> → <b>entropia-studios</b> → <b>Settings</b> → <b>Variables and Secrets</b>.</li>
-          <li>Agregá un secreto llamado <code>ADMIN_PASSWORD</code> con la contraseña que quieras usar acá.</li>
-          <li>Agregá otro llamado <code>GITHUB_TOKEN</code> con el token de GitHub (permiso <i>Contents: read and write</i> sobre el repositorio de la web).</li>
+          <li>
+            Agregá cada uno de estos, del tipo <b>Secret</b>:
+            <ul id="missing-list" style="margin-top: 0.5rem"></ul>
+          </li>
           <li>Guardá y recargá esta página.</li>
         </ol>
+        <p class="hint">
+          <code>ADMIN_PASSWORD_…</code> es la contraseña de cada persona, la que elijas.
+          <code>GITHUB_TOKEN</code> es el permiso de GitHub sobre el repositorio de la web (<i>Contents: read and write</i>).
+        </p>
       </div>
     </div>
 
@@ -189,6 +201,7 @@
           <button class="tab" id="go-pages">Páginas</button>
         </nav>
         <div class="bar-right">
+          <span class="who" id="who"></span>
           <a href="/es/" target="_blank" rel="noopener"><button class="ghost">Ver la web ↗</button></a>
           <button id="logout" class="ghost">Salir</button>
         </div>
@@ -220,6 +233,7 @@
           <button class="tab is-active">Páginas</button>
         </nav>
         <div class="bar-right">
+          <span class="who" id="who-2"></span>
           <a href="/es/" target="_blank" rel="noopener"><button class="ghost">Ver la web ↗</button></a>
           <button id="logout-2" class="ghost">Salir</button>
         </div>
@@ -1227,7 +1241,10 @@
         event.preventDefault();
         banner($('login-error'), '');
         try {
-          await api('/api/admin/login', { method: 'POST', body: JSON.stringify({ password: $('password').value }) });
+          await api('/api/admin/login', {
+            method: 'POST',
+            body: JSON.stringify({ email: $('email').value, password: $('password').value }),
+          });
           $('password').value = '';
           await loadAndShowList();
         } catch (err) {
@@ -1244,9 +1261,16 @@
 
       $('new-project').addEventListener('click', function () { openEditor(-1); });
 
+      function showWho(name) {
+        var label = name ? 'Sesión de ' + name : '';
+        $('who').textContent = label;
+        $('who-2').textContent = label;
+      }
+
       async function loadAndShowList() {
         overlay('Cargando…', '');
         data = await api('/api/admin/data');
+        showWho((await api('/api/admin/session')).name);
         original = { projects: clone(data.projects) };
         hideOverlay();
         banner($('list-banner'), '');
@@ -1259,7 +1283,19 @@
       (async function boot() {
         try {
           var session = await api('/api/admin/session');
-          if (!session.configured) { show('view-setup'); return; }
+          if (!session.configured) {
+            var list = $('missing-list');
+            list.innerHTML = '';
+            (session.missing || []).forEach(function (name) {
+              var item = document.createElement('li');
+              var code = document.createElement('code');
+              code.textContent = name;
+              item.appendChild(code);
+              list.appendChild(item);
+            });
+            show('view-setup');
+            return;
+          }
           if (!session.authenticated) { show('view-login'); return; }
           await loadAndShowList();
         } catch (err) {

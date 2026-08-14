@@ -6,9 +6,12 @@
 // repository through the GitHub API, which triggers the usual redeploy.
 //
 // Secrets it needs (Cloudflare → Workers → entropia-studios → Settings):
-//   ADMIN_PASSWORD  the password for /admin
+//   ADMIN_PASSWORD_SEBASTIAN, ADMIN_PASSWORD_JAVIER  one password per person
 //   GITHUB_TOKEN    fine-grained token with Contents: read & write on the repo
 // Plain vars (wrangler.jsonc): GITHUB_REPO, GIT_BRANCH.
+//
+// To add someone: one line in USERS below plus their own secret. Nobody shares
+// a password, and every change is committed in that person's name.
 
 import adminHtml from './admin.html';
 import { headCommit, treeFiles, readTextFile, commitFiles } from './github.js';
@@ -42,6 +45,14 @@ const CREDIT_KEYS = [
   'releaseDate',
   'runtime',
 ];
+
+// Who can enter the panel. Each person has their own password, stored as its
+// own Cloudflare secret — nothing is shared and nothing lives in this file.
+const USERS = [
+  { email: 'sebastian@entropia-studios.com', name: 'Sebastián Cepeda', secret: 'ADMIN_PASSWORD_SEBASTIAN' },
+  { email: 'javier@entropia-studios.com', name: 'Javier Krause', secret: 'ADMIN_PASSWORD_JAVIER' },
+];
+const findUser = (email) => USERS.find((u) => u.email === String(email || '').trim().toLowerCase());
 
 const SESSION_HOURS = 8;
 const MAX_UPLOAD_BYTES = 6 * 1024 * 1024; // per file, after the browser resized it
@@ -80,19 +91,34 @@ async function sign(secret, message) {
   return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-async function makeSession(env) {
+// The session is signed with that person's own password, so changing a
+// password only logs that person out.
+async function makeSession(env, user) {
   const exp = Date.now() + SESSION_HOURS * 3600 * 1000;
-  return `${exp}.${await sign(env.ADMIN_PASSWORD, `session-v1.${exp}`)}`;
+  const payload = `${user.email}|${exp}`;
+  return `${btoa(payload)}.${await sign(env[user.secret], `session-v2.${payload}`)}`;
 }
 
-async function validSession(env, request) {
+/** Returns the signed-in user, or null. */
+async function sessionUser(env, request) {
   const cookie = request.headers.get('cookie') || '';
   const match = cookie.match(/(?:^|;\s*)es_session=([^;]+)/);
-  if (!match) return false;
-  const [exp, sig] = decodeURIComponent(match[1]).split('.');
-  if (!exp || !sig) return false;
-  if (Number(exp) < Date.now()) return false;
-  return timingSafeEqual(sig, await sign(env.ADMIN_PASSWORD, `session-v1.${exp}`));
+  if (!match) return null;
+  const [encoded, sig] = decodeURIComponent(match[1]).split('.');
+  if (!encoded || !sig) return null;
+
+  let payload;
+  try {
+    payload = atob(encoded);
+  } catch {
+    return null;
+  }
+  const [email, exp] = payload.split('|');
+  const user = findUser(email);
+  if (!user || !env[user.secret]) return null;
+  if (!Number(exp) || Number(exp) < Date.now()) return null;
+  if (!timingSafeEqual(sig, await sign(env[user.secret], `session-v2.${payload}`))) return null;
+  return user;
 }
 
 function sessionCookie(value, url, maxAge) {
@@ -100,7 +126,14 @@ function sessionCookie(value, url, maxAge) {
   return `es_session=${value}; Path=/; HttpOnly;${secure} SameSite=Lax; Max-Age=${maxAge}`;
 }
 
-const configured = (env) => Boolean(env.ADMIN_PASSWORD && env.GITHUB_TOKEN && env.GITHUB_REPO);
+/** Which secrets are still missing, so /admin can say exactly what to add. */
+function missingSecrets(env) {
+  const missing = USERS.filter((u) => !env[u.secret]).map((u) => u.secret);
+  if (!env.GITHUB_TOKEN) missing.push('GITHUB_TOKEN');
+  return missing;
+}
+// One password is enough to work; the panel only refuses when nobody can enter.
+const configured = (env) => Boolean(env.GITHUB_TOKEN && env.GITHUB_REPO && USERS.some((u) => env[u.secret]));
 
 // Very small brute-force brake. Per isolate, which is enough to make guessing
 // impractical without adding any storage.
@@ -223,16 +256,19 @@ async function handleLogin(request, env, url) {
   const wait = throttle(ip);
   if (wait) return json({ error: `Demasiados intentos. Probá de nuevo en ${wait} segundos.` }, 429);
 
-  const { password } = await request.json().catch(() => ({}));
-  if (typeof password !== 'string' || !timingSafeEqual(password, env.ADMIN_PASSWORD)) {
+  const { email, password } = await request.json().catch(() => ({}));
+  const user = findUser(email);
+  const stored = user && env[user.secret];
+  if (!stored || typeof password !== 'string' || !timingSafeEqual(password, stored)) {
     noteFailure(ip);
-    return json({ error: 'Contraseña incorrecta.' }, 401);
+    // Same message either way: no need to tell a stranger which email exists.
+    return json({ error: 'Email o contraseña incorrectos.' }, 401);
   }
   attempts.delete(ip);
   return json(
-    { ok: true },
+    { ok: true, name: user.name },
     200,
-    { 'set-cookie': sessionCookie(await makeSession(env), url, SESSION_HOURS * 3600) }
+    { 'set-cookie': sessionCookie(await makeSession(env, user), url, SESSION_HOURS * 3600) }
   );
 }
 
@@ -262,7 +298,7 @@ async function handleData(env) {
   });
 }
 
-async function handlePublish(request, env) {
+async function handlePublish(request, env, user) {
   const body = await request.json();
   const { projects, synopses, awards, pages, uploads = [], message, baseCommit } = body;
 
@@ -317,6 +353,8 @@ async function handlePublish(request, env) {
     message: message || 'Panel: actualización del sitio',
     texts,
     uploads: uploads.map((u) => ({ path: UPLOAD_DIRS[u.dir] + u.name, base64: u.base64 })),
+    // So the history says who changed what, not just "the panel".
+    author: { name: user.name, email: user.email },
   });
 
   return json({ ok: true, commit: newCommit, buildId });
@@ -335,15 +373,22 @@ async function handleApi(request, env, url) {
   }
 
   if (path === '/api/admin/session') {
-    return json({ configured: configured(env), authenticated: configured(env) && (await validSession(env, request)) });
+    const user = configured(env) ? await sessionUser(env, request) : null;
+    return json({
+      configured: configured(env),
+      missing: missingSecrets(env),
+      authenticated: Boolean(user),
+      name: user ? user.name : null,
+    });
   }
 
   if (!configured(env)) return json({ error: 'El panel todavía no está configurado.' }, 503);
-  if (!(await validSession(env, request))) return json({ error: 'Sesión vencida. Volvé a entrar.' }, 401);
+  const user = await sessionUser(env, request);
+  if (!user) return json({ error: 'Sesión vencida. Volvé a entrar.' }, 401);
 
   try {
     if (path === '/api/admin/data' && request.method === 'GET') return await handleData(env);
-    if (path === '/api/admin/publish' && request.method === 'POST') return await handlePublish(request, env);
+    if (path === '/api/admin/publish' && request.method === 'POST') return await handlePublish(request, env, user);
   } catch (err) {
     return json({ error: `No se pudo guardar: ${err.message}` }, 502);
   }

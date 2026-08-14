@@ -67,7 +67,7 @@ export async function readTextFile(env, path, ref) {
  *   deletes [path]                  files to remove
  * Returns the new commit sha.
  */
-export async function commitFiles(env, { baseCommit, texts = {}, uploads = [], deletes = [], message }) {
+export async function commitFiles(env, { baseCommit, texts = {}, uploads = [], deletes = [], message, author }) {
   const base = await gh(env, `/git/commits/${baseCommit}`);
 
   const tree = [];
@@ -101,7 +101,12 @@ export async function commitFiles(env, { baseCommit, texts = {}, uploads = [], d
 
   const commit = await gh(env, '/git/commits', {
     method: 'POST',
-    body: JSON.stringify({ message, tree: newTree.sha, parents: [baseCommit] }),
+    body: JSON.stringify({
+      message,
+      tree: newTree.sha,
+      parents: [baseCommit],
+      ...(author ? { author, committer: author } : {}),
+    }),
   });
 
   await gh(env, `/git/refs/heads/${env.GIT_BRANCH}`, {
