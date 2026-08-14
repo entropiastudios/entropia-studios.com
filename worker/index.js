@@ -17,9 +17,15 @@ const DATA_FILES = {
   projects: 'src/data/projects.json',
   synopses: 'src/data/synopses.json',
   awards: 'src/data/awards.json',
+  about: 'src/data/about.json',
+  contact: 'src/data/contact.json',
+  privacy: 'src/data/privacy.json',
+  site: 'src/data/site.json',
 };
+const PAGE_KEYS = ['about', 'contact', 'privacy', 'site'];
 const BUILD_ID_FILE = 'public/build-id.txt';
-const IMAGE_DIR = 'public/images/projects/';
+// Uploads may only land in these folders, addressed by their short name.
+const UPLOAD_DIRS = { projects: 'public/images/projects/', team: 'public/images/team/' };
 
 // Keep these in sync with src/i18n/ui.js (cat.*, status.*, credit.*).
 const CATEGORIES = ['Film', 'Series', 'Doc', 'Short', 'TV'];
@@ -146,6 +152,57 @@ function validateProjects(projects) {
   return null;
 }
 
+const isText = (v, max = 20000) => typeof v === 'string' && v.length <= max;
+const isTextList = (v, max = 20000) => Array.isArray(v) && v.every((item) => isText(item, max));
+const isTeamImage = (s) => typeof s === 'string' && /^\/images\/team\/[a-z0-9._-]+\.(webp|jpg|png)$/.test(s);
+
+/** Shape checks for the page content, per locale. Returns an error or null. */
+function validatePages(pages) {
+  for (const key of PAGE_KEYS) {
+    if (!(key in pages)) return `Falta el contenido de ${key}`;
+  }
+
+  for (const lang of ['en', 'es']) {
+    const a = pages.about?.[lang];
+    if (!a || !isText(a.heading, 200) || !isTextList(a.paragraphs) || !isText(a.network))
+      return 'El texto de Nosotros no es válido.';
+    if (!isText(a.teamHeading, 200) || !isText(a.officesHeading, 200)) return 'Los títulos de Nosotros no son válidos.';
+    if (!Array.isArray(a.team)) return 'El equipo de Nosotros no es válido.';
+    for (const member of a.team) {
+      if (!isText(member.name, 200) || !isText(member.role, 200)) return 'Falta el nombre o el rol de alguien del equipo.';
+      if (member.img && !isTeamImage(member.img)) return 'La foto de alguien del equipo no es válida.';
+    }
+
+    const c = pages.contact?.[lang];
+    if (!c || !isText(c.heading, 200) || !isTextList(c.paragraphs) || !isText(c.cta, 200))
+      return 'El texto de Contacto no es válido.';
+
+    const p = pages.privacy?.[lang];
+    if (!p || !isText(p.title, 200) || !isText(p.updated, 200) || !isText(p.intro))
+      return 'El texto de Privacidad no es válido.';
+    if (!Array.isArray(p.sections)) return 'Las secciones de Privacidad no son válidas.';
+    for (const section of p.sections) {
+      if (!isText(section.h, 300) || !isTextList(section.p)) return 'Una sección de Privacidad no es válida.';
+    }
+  }
+
+  const s = pages.site;
+  if (!s || !isText(s.name, 200) || !isText(s.legalName, 200)) return 'Faltan los datos del estudio.';
+  if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(s.email || '')) return 'El email del estudio no es válido.';
+  if (!Array.isArray(s.offices) || !s.offices.length) return 'Tiene que haber al menos una oficina.';
+  for (const office of s.offices) {
+    for (const field of ['country', 'name', 'street', 'city']) {
+      if (!isText(office[field], 200)) return 'Faltan datos en una de las oficinas.';
+    }
+  }
+  if (!Array.isArray(s.socials)) return 'Las redes sociales no son válidas.';
+  for (const social of s.socials) {
+    if (!isText(social.name, 100)) return 'Falta el nombre de una red social.';
+    if (!/^https?:\/\/\S+$/.test(social.url || '')) return `El enlace de ${social.name} tiene que empezar con https://`;
+  }
+  return null;
+}
+
 function validateTexts(map, slugs, label) {
   if (typeof map !== 'object' || map === null) return `${label}: formato inválido`;
   for (const [slug, value] of Object.entries(map)) {
@@ -181,35 +238,44 @@ async function handleLogin(request, env, url) {
 
 async function handleData(env) {
   const commit = await headCommit(env);
-  const [projects, synopses, awards] = await Promise.all(
-    Object.values(DATA_FILES).map((path) => readTextFile(env, path, commit))
-  );
-  // Never fall back to empty data: publishing on top of it would wipe the
-  // site's content. If a file is missing, something is wrong upstream.
-  for (const [name, content] of Object.entries({ projects, synopses, awards })) {
-    if (content === null) throw new Error(`falta el archivo de ${name} en el repositorio`);
-  }
+  const names = Object.keys(DATA_FILES);
+  const contents = await Promise.all(names.map((name) => readTextFile(env, DATA_FILES[name], commit)));
+
+  const loaded = {};
+  names.forEach((name, i) => {
+    // Never fall back to empty data: publishing on top of it would wipe the
+    // site's content. If a file is missing, something is wrong upstream.
+    if (contents[i] === null) throw new Error(`falta el archivo de ${name} en el repositorio`);
+    loaded[name] = JSON.parse(contents[i]);
+  });
+
+  const pages = {};
+  for (const key of PAGE_KEYS) pages[key] = loaded[key];
+
   return json({
     commit,
-    projects: JSON.parse(projects),
-    synopses: JSON.parse(synopses),
-    awards: JSON.parse(awards),
+    projects: loaded.projects,
+    synopses: loaded.synopses,
+    awards: loaded.awards,
+    pages,
     options: { categories: CATEGORIES, statuses: STATUSES, creditKeys: CREDIT_KEYS },
   });
 }
 
 async function handlePublish(request, env) {
   const body = await request.json();
-  const { projects, synopses, awards, uploads = [], message, baseCommit } = body;
+  const { projects, synopses, awards, pages, uploads = [], message, baseCommit } = body;
 
   const invalid =
     validateProjects(projects) ||
     validateTexts(synopses, new Set(projects.map((p) => p.slug)), 'Sinopsis') ||
-    validateTexts(awards, new Set(projects.map((p) => p.slug)), 'Premios');
+    validateTexts(awards, new Set(projects.map((p) => p.slug)), 'Premios') ||
+    validatePages(pages || {});
   if (invalid) return json({ error: invalid }, 400);
 
   let total = 0;
   for (const up of uploads) {
+    if (!UPLOAD_DIRS[up.dir]) return json({ error: `Destino de imagen inválido: ${up.dir}` }, 400);
     if (!/^[a-z0-9._-]+\.webp$/.test(up.name || '')) return json({ error: `Nombre de imagen inválido: ${up.name}` }, 400);
     const bytes = Math.floor((up.base64?.length || 0) * 0.75);
     total += bytes;
@@ -224,25 +290,33 @@ async function handlePublish(request, env) {
 
   // Every image referenced must exist in the repo or be uploaded right now.
   const { files } = await treeFiles(env, head);
-  const incoming = new Set(uploads.map((u) => IMAGE_DIR + u.name));
+  const incoming = new Set(uploads.map((u) => UPLOAD_DIRS[u.dir] + u.name));
+  const missing = (ref) => !files.has('public' + ref) && !incoming.has('public' + ref);
   for (const p of projects) {
     for (const ref of [p.image, p.thumb]) {
-      const path = 'public' + ref;
-      if (!files.has(path) && !incoming.has(path)) return json({ error: `Falta la foto de ${p.slug}.` }, 400);
+      if (missing(ref)) return json({ error: `Falta la foto de ${p.slug}.` }, 400);
+    }
+  }
+  for (const lang of ['en', 'es']) {
+    for (const member of pages.about[lang].team) {
+      if (member.img && missing(member.img)) return json({ error: `Falta la foto de ${member.name}.` }, 400);
     }
   }
 
   const buildId = `${Date.now()}`;
+  const texts = {
+    [DATA_FILES.projects]: JSON.stringify(projects, null, 2) + '\n',
+    [DATA_FILES.synopses]: JSON.stringify(synopses, null, 2) + '\n',
+    [DATA_FILES.awards]: JSON.stringify(awards, null, 2) + '\n',
+    [BUILD_ID_FILE]: buildId + '\n',
+  };
+  for (const key of PAGE_KEYS) texts[DATA_FILES[key]] = JSON.stringify(pages[key], null, 2) + '\n';
+
   const newCommit = await commitFiles(env, {
     baseCommit: head,
-    message: message || 'Panel: actualización de proyectos',
-    texts: {
-      [DATA_FILES.projects]: JSON.stringify(projects, null, 2) + '\n',
-      [DATA_FILES.synopses]: JSON.stringify(synopses, null, 2) + '\n',
-      [DATA_FILES.awards]: JSON.stringify(awards, null, 2) + '\n',
-      [BUILD_ID_FILE]: buildId + '\n',
-    },
-    uploads: uploads.map((u) => ({ path: IMAGE_DIR + u.name, base64: u.base64 })),
+    message: message || 'Panel: actualización del sitio',
+    texts,
+    uploads: uploads.map((u) => ({ path: UPLOAD_DIRS[u.dir] + u.name, base64: u.base64 })),
   });
 
   return json({ ok: true, commit: newCommit, buildId });

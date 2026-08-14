@@ -41,6 +41,30 @@
       }
       .brand { font-weight: 700; font-size: 0.95rem; letter-spacing: 0.12em; text-transform: uppercase; }
       .bar-right { margin-left: auto; display: flex; align-items: center; gap: 0.75rem; }
+      .tabs { display: flex; gap: 0.25rem; margin-left: 1rem; }
+      .tab { border-color: transparent; color: var(--grey); padding: 0.4rem 0.9rem; }
+      .tab.is-active { color: var(--white); background: rgba(255, 255, 255, 0.1); }
+      @media (max-width: 620px) { .brand { display: none; } .tabs { margin-left: 0; } }
+
+      .menu-item {
+        display: flex; align-items: center; gap: 1rem; width: 100%; text-align: left;
+        border: 1px solid var(--line); border-radius: 14px; background: var(--surface);
+        padding: 1rem 1.15rem; margin-bottom: 0.75rem;
+      }
+      .menu-item b { font-size: 1.05rem; font-weight: 600; }
+      .menu-item span { display: block; color: var(--grey); font-size: 0.85rem; margin-top: 0.15rem; }
+      .menu-item .chev { margin-left: auto; color: var(--grey); }
+      .lang-block { border-top: 1px dashed var(--line); margin-top: 2rem; padding-top: 1.5rem; }
+      .lang-block:first-child { border-top: 0; margin-top: 0; padding-top: 0; }
+      .lang-tag {
+        display: inline-block; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;
+        color: var(--grey); border: 1px solid var(--line); border-radius: 100px;
+        padding: 0.15rem 0.6rem; margin-bottom: 1.25rem;
+      }
+      .subcard { border: 1px solid var(--line); border-radius: 12px; padding: 1rem; margin-bottom: 0.85rem; background: var(--surface-2); }
+      .subcard-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+      .subcard-head b { font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--grey); font-weight: 600; }
+      .subcard-head button { margin-left: auto; }
 
       button {
         font: inherit; cursor: pointer; border-radius: 100px; border: 1px solid var(--line);
@@ -160,6 +184,10 @@
     <div id="view-list" class="hidden">
       <header class="bar">
         <span class="brand">Entropía · Panel</span>
+        <nav class="tabs">
+          <button class="tab is-active">Proyectos</button>
+          <button class="tab" id="go-pages">Páginas</button>
+        </nav>
         <div class="bar-right">
           <a href="/es/" target="_blank" rel="noopener"><button class="ghost">Ver la web ↗</button></a>
           <button id="logout" class="ghost">Salir</button>
@@ -180,6 +208,42 @@
           <button id="new-project" class="primary" style="margin-left: auto">+ Proyecto nuevo</button>
         </div>
         <div id="project-list"></div>
+      </div>
+    </div>
+
+    <!-- ------------------------------------------------------------ pages -->
+    <div id="view-pages" class="hidden">
+      <header class="bar">
+        <span class="brand">Entropía · Panel</span>
+        <nav class="tabs">
+          <button class="tab" id="go-projects">Proyectos</button>
+          <button class="tab is-active">Páginas</button>
+        </nav>
+        <div class="bar-right">
+          <a href="/es/" target="_blank" rel="noopener"><button class="ghost">Ver la web ↗</button></a>
+          <button id="logout-2" class="ghost">Salir</button>
+        </div>
+      </header>
+      <div class="wrap">
+        <div id="pages-banner" class="banner ok hidden"></div>
+        <h1 style="margin: 0">Páginas</h1>
+        <p class="sub">El resto del sitio: los textos fijos y los datos del estudio.</p>
+        <div id="pages-menu"></div>
+      </div>
+    </div>
+
+    <!-- ----------------------------------------------------- page editor -->
+    <div id="view-page-editor" class="hidden">
+      <header class="bar">
+        <button id="page-back" class="ghost">← Páginas</button>
+        <div class="bar-right">
+          <button id="page-save" class="primary">Guardar y publicar</button>
+        </div>
+      </header>
+      <div class="wrap">
+        <div id="page-error" class="banner error hidden"></div>
+        <h1 id="page-title" style="margin-bottom: 1.25rem"></h1>
+        <div id="page-form" class="panel"></div>
       </div>
     </div>
 
@@ -316,11 +380,12 @@
       var data = null; // { commit, projects, synopses, awards, options }
       var original = null; // untouched copy, to undo reordering
       var editing = null; // { index, project, isNew }
-      var pendingUploads = []; // [{ name, base64 }] for the photo being replaced
+      var pendingUploads = []; // [{ name, blob }] for the photo being replaced
+      var freshPhotos = {}; // slug → local preview, until the rebuild publishes the real file
 
       var $ = function (id) { return document.getElementById(id); };
       var show = function (id) {
-        ['view-login', 'view-setup', 'view-list', 'view-editor'].forEach(function (v) {
+        ['view-login', 'view-setup', 'view-list', 'view-editor', 'view-pages', 'view-page-editor'].forEach(function (v) {
           $(v).classList.toggle('hidden', v !== id);
         });
         window.scrollTo(0, 0);
@@ -418,7 +483,7 @@
         var dims = {};
         made.forEach(function (m) {
           var name = slug + '-' + m.kind + '-' + m.target + '-' + version + '.webp';
-          uploads.push({ name: name, blob: m.blob });
+          uploads.push({ name: name, blob: m.blob, dir: 'projects' });
           url[m.kind + m.target] = '/images/projects/' + name;
           dims[m.kind + m.target] = { w: m.w, h: m.h };
         });
@@ -449,8 +514,11 @@
           card.className = 'card';
 
           var img = document.createElement('img');
-          img.src = p.thumb;
+          // A photo just uploaded is not on the site until the rebuild ends,
+          // so show the local copy meanwhile instead of a broken image.
+          img.src = freshPhotos[p.slug] || p.thumb;
           img.alt = '';
+          img.addEventListener('error', function () { img.style.visibility = 'hidden'; });
           card.appendChild(img);
 
           var body = document.createElement('div');
@@ -561,6 +629,10 @@
         });
       }
 
+      function showPhotoBoxes(visible) {
+        document.querySelector('.photo-grid').classList.toggle('hidden', !visible);
+      }
+
       function blankProject() {
         return {
           slug: '',
@@ -603,8 +675,10 @@
         updateSlugHint();
 
         $('f-photo').value = '';
-        $('prev-thumb').src = project.thumb || '';
-        $('prev-poster').src = project.image || '';
+        var currentPhoto = freshPhotos[project.slug] || project.thumb;
+        $('prev-thumb').src = currentPhoto || '';
+        $('prev-poster').src = freshPhotos[project.slug] || project.image || '';
+        showPhotoBoxes(Boolean(currentPhoto));
 
         var syn = (data.synopses[project.slug] || {});
         var awa = (data.awards[project.slug] || {});
@@ -660,8 +734,10 @@
           var result = await processPhoto(file, slug);
           pendingUploads = result.uploads;
           Object.assign(editing.project, result.fields);
+          editing.previewUrl = result.previewUrl;
           $('prev-thumb').src = result.previewUrl;
           $('prev-poster').src = result.previewUrl;
+          showPhotoBoxes(true);
           hideOverlay();
         } catch (err) {
           hideOverlay();
@@ -734,6 +810,7 @@
           return;
         }
         var name = editing.project.title;
+        if (editing.previewUrl) freshPhotos[editing.project.slug] = editing.previewUrl;
         var ok = await publish((editing.isNew ? 'Panel: nuevo proyecto ' : 'Panel: ') + name, pendingUploads);
         if (!ok) {
           data.projects = snapshot.projects;
@@ -757,9 +834,330 @@
         }
       });
 
+      // -------------------------------------------------------------- pages
+
+      var PAGES = [
+        { key: 'about', name: 'Nosotros', desc: 'Quiénes somos, el equipo y la red de productoras.' },
+        { key: 'contact', name: 'Contacto', desc: 'El texto de la página de contacto.' },
+        { key: 'privacy', name: 'Política de privacidad', desc: 'El texto legal que cuelga del pie.' },
+        { key: 'site', name: 'Datos del estudio', desc: 'Email, oficinas y redes: se usan en todo el sitio.' },
+      ];
+      var pageKey = null;
+      var pageDraft = null;
+
+      function make(tag, className, text) {
+        var node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text != null) node.textContent = text;
+        return node;
+      }
+
+      function field(labelText, control, hint) {
+        var wrap = make('div', 'field');
+        var label = make('label', null, labelText);
+        wrap.appendChild(label);
+        wrap.appendChild(control);
+        if (hint) wrap.appendChild(make('p', 'hint', hint));
+        return wrap;
+      }
+
+      function textInput(value, onChange, placeholder) {
+        var input = document.createElement('input');
+        input.type = 'text';
+        input.value = value || '';
+        if (placeholder) input.placeholder = placeholder;
+        input.addEventListener('input', function () { onChange(input.value); });
+        return input;
+      }
+
+      function textArea(value, onChange, rows) {
+        var area = document.createElement('textarea');
+        area.value = value || '';
+        if (rows) area.style.minHeight = rows * 1.6 + 'rem';
+        area.addEventListener('input', function () { onChange(area.value); });
+        return area;
+      }
+
+      var paragraphsToText = function (list) { return (list || []).join('\n\n'); };
+      var textToParagraphs = function (text) {
+        return String(text).split(/\n\s*\n/).map(function (p) { return p.trim(); }).filter(Boolean);
+      };
+
+      function langBlock(parent, title) {
+        var block = make('div', 'lang-block');
+        block.appendChild(make('span', 'lang-tag', title));
+        parent.appendChild(block);
+        return block;
+      }
+
+      function subcard(parent, title, onRemove) {
+        var card = make('div', 'subcard');
+        var head = make('div', 'subcard-head');
+        head.appendChild(make('b', null, title));
+        if (onRemove) {
+          var remove = make('button', 'ghost tiny', 'Quitar');
+          remove.addEventListener('click', onRemove);
+          head.appendChild(remove);
+        }
+        card.appendChild(head);
+        parent.appendChild(card);
+        return card;
+      }
+
+      function addButton(parent, text, onClick) {
+        var button = make('button', 'tiny', text);
+        button.style.marginTop = '0.25rem';
+        button.addEventListener('click', onClick);
+        parent.appendChild(button);
+      }
+
+      // Team photos are shown at a fixed 800×900 on the site, so we crop to it.
+      async function processTeamPhoto(file, personName) {
+        var bitmap = await createImageBitmap(file);
+        var W = 800;
+        var H = 900;
+        var scale = Math.max(W / bitmap.width, H / bitmap.height);
+        var dw = bitmap.width * scale;
+        var dh = bitmap.height * scale;
+        var canvas = document.createElement('canvas');
+        canvas.width = W;
+        canvas.height = H;
+        var ctx = canvas.getContext('2d');
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(bitmap, (W - dw) / 2, (H - dh) / 2, dw, dh);
+        bitmap.close();
+        var blob = await new Promise(function (resolve) { canvas.toBlob(resolve, 'image/webp', 0.85); });
+        if (!blob) throw new Error('Este navegador no pudo convertir la foto.');
+        var name = (slugify(personName) || 'equipo') + '-' + (await shortHash(blob)) + '.webp';
+        return { upload: { name: name, blob: blob, dir: 'team' }, path: '/images/team/' + name, previewUrl: URL.createObjectURL(blob) };
+      }
+
+      function renderPagesMenu() {
+        var menu = $('pages-menu');
+        menu.innerHTML = '';
+        PAGES.forEach(function (page) {
+          var item = make('button', 'menu-item');
+          var body = make('div');
+          body.appendChild(make('b', null, page.name));
+          body.appendChild(make('span', null, page.desc));
+          item.appendChild(body);
+          item.appendChild(make('span', 'chev', '→'));
+          item.addEventListener('click', function () { openPage(page.key); });
+          menu.appendChild(item);
+        });
+      }
+
+      function openPage(key) {
+        pageKey = key;
+        pageDraft = clone(data.pages);
+        pendingUploads = [];
+        banner($('page-error'), '');
+        $('page-title').textContent = PAGES.find(function (p) { return p.key === key; }).name;
+        var form = $('page-form');
+        form.innerHTML = '';
+        if (key === 'about') buildAbout(form);
+        else if (key === 'contact') buildContact(form);
+        else if (key === 'privacy') buildPrivacy(form);
+        else buildSite(form);
+        show('view-page-editor');
+      }
+
+      function buildAbout(form) {
+        ['es', 'en'].forEach(function (lang) {
+          var a = pageDraft.about[lang];
+          var block = langBlock(form, lang === 'es' ? 'Castellano' : 'Inglés');
+          block.appendChild(field('Título de la página', textInput(a.heading, function (v) { a.heading = v; })));
+          block.appendChild(field('Texto', textArea(paragraphsToText(a.paragraphs), function (v) { a.paragraphs = textToParagraphs(v); }, 14),
+            'Dejá una línea en blanco entre párrafo y párrafo.'));
+          block.appendChild(field('Título del equipo', textInput(a.teamHeading, function (v) { a.teamHeading = v; })));
+          block.appendChild(field('Texto de la red de productoras', textArea(a.network, function (v) { a.network = v; }, 6)));
+          block.appendChild(field('Título de oficinas', textInput(a.officesHeading, function (v) { a.officesHeading = v; })));
+        });
+
+        var block = langBlock(form, 'Equipo');
+        var listBox = make('div');
+        block.appendChild(listBox);
+        renderTeam(listBox);
+        addButton(block, '+ Añadir persona', function () {
+          ['es', 'en'].forEach(function (lang) { pageDraft.about[lang].team.push({ name: '', role: '', img: '' }); });
+          renderTeam(listBox);
+        });
+      }
+
+      function renderTeam(box) {
+        box.innerHTML = '';
+        var team = pageDraft.about.es.team;
+        team.forEach(function (member, i) {
+          var enMember = pageDraft.about.en.team[i] || (pageDraft.about.en.team[i] = { name: member.name, role: '', img: member.img });
+          var card = subcard(box, 'Persona ' + (i + 1), function () {
+            ['es', 'en'].forEach(function (lang) { pageDraft.about[lang].team.splice(i, 1); });
+            renderTeam(box);
+          });
+
+          card.appendChild(field('Nombre', textInput(member.name, function (v) {
+            member.name = v;
+            enMember.name = v;
+          })));
+          card.appendChild(field('Rol (castellano)', textInput(member.role, function (v) { member.role = v; })));
+          card.appendChild(field('Rol (inglés)', textInput(enMember.role, function (v) { enMember.role = v; })));
+
+          if (member.img) {
+            var preview = document.createElement('img');
+            preview.src = freshPhotos['team:' + i] || member.img;
+            preview.style.cssText = 'width:110px;height:124px;object-fit:cover;border-radius:10px;display:block;margin-bottom:0.6rem';
+            preview.addEventListener('error', function () { preview.style.display = 'none'; });
+            card.appendChild(preview);
+          }
+
+          var photo = document.createElement('input');
+          photo.type = 'file';
+          photo.accept = 'image/*';
+          photo.style.cssText = 'padding:0.5rem;background:transparent;border-style:dashed';
+          photo.addEventListener('change', async function () {
+            var file = photo.files[0];
+            if (!file) return;
+            try {
+              overlay('Preparando la foto…', '');
+              var result = await processTeamPhoto(file, member.name);
+              pendingUploads.push(result.upload);
+              member.img = result.path;
+              enMember.img = result.path;
+              freshPhotos['team:' + i] = result.previewUrl;
+              hideOverlay();
+              renderTeam(box);
+            } catch (err) {
+              hideOverlay();
+              banner($('page-error'), err.message);
+            }
+          });
+          card.appendChild(field('Foto', photo, 'Se recorta a 800×900, que es como se ve en la web.'));
+        });
+      }
+
+      function buildContact(form) {
+        ['es', 'en'].forEach(function (lang) {
+          var c = pageDraft.contact[lang];
+          var block = langBlock(form, lang === 'es' ? 'Castellano' : 'Inglés');
+          block.appendChild(field('Título', textInput(c.heading, function (v) { c.heading = v; })));
+          block.appendChild(field('Texto', textArea(paragraphsToText(c.paragraphs), function (v) { c.paragraphs = textToParagraphs(v); }, 10),
+            'Dejá una línea en blanco entre párrafo y párrafo.'));
+          block.appendChild(field('Texto del botón', textInput(c.cta, function (v) { c.cta = v; })));
+        });
+      }
+
+      function buildPrivacy(form) {
+        ['es', 'en'].forEach(function (lang) {
+          var doc = pageDraft.privacy[lang];
+          var block = langBlock(form, lang === 'es' ? 'Castellano' : 'Inglés');
+          block.appendChild(field('Título', textInput(doc.title, function (v) { doc.title = v; })));
+          block.appendChild(field('Última actualización', textInput(doc.updated, function (v) { doc.updated = v; })));
+          block.appendChild(field('Introducción', textArea(doc.intro, function (v) { doc.intro = v; }, 5)));
+
+          var listBox = make('div');
+          block.appendChild(listBox);
+          var draw = function () {
+            listBox.innerHTML = '';
+            doc.sections.forEach(function (section, i) {
+              var card = subcard(listBox, 'Sección ' + (i + 1), function () {
+                doc.sections.splice(i, 1);
+                draw();
+              });
+              card.appendChild(field('Título', textInput(section.h, function (v) { section.h = v; })));
+              card.appendChild(field('Texto', textArea(paragraphsToText(section.p), function (v) { section.p = textToParagraphs(v); }, 8),
+                'Una línea en blanco entre párrafo y párrafo.'));
+            });
+          };
+          draw();
+          addButton(block, '+ Añadir sección', function () {
+            doc.sections.push({ h: '', p: [''] });
+            draw();
+          });
+        });
+      }
+
+      function buildSite(form) {
+        var s = pageDraft.site;
+        var block = langBlock(form, 'Contacto');
+        block.appendChild(field('Email', textInput(s.email, function (v) { s.email = v.trim(); })));
+        block.appendChild(field('Descripción para buscadores', textArea(s.description, function (v) { s.description = v; }, 4),
+          'En inglés: es lo que aparece en Google y al compartir el enlace.'));
+        block.appendChild(field('Frase', textArea(s.tagline, function (v) { s.tagline = v; }, 3)));
+
+        var officesBlock = langBlock(form, 'Oficinas');
+        var officeBox = make('div');
+        officesBlock.appendChild(officeBox);
+        var drawOffices = function () {
+          officeBox.innerHTML = '';
+          s.offices.forEach(function (office, i) {
+            var card = subcard(officeBox, 'Oficina ' + (i + 1), function () {
+              s.offices.splice(i, 1);
+              drawOffices();
+            });
+            card.appendChild(field('País', textInput(office.country, function (v) { office.country = v; }),
+              'Se traduce solo si es uno de los que ya usa la web (Spain, Switzerland, Netherlands, Italy).'));
+            card.appendChild(field('Empresa', textInput(office.name, function (v) { office.name = v; })));
+            card.appendChild(field('Calle', textInput(office.street, function (v) { office.street = v; })));
+            card.appendChild(field('Ciudad', textInput(office.city, function (v) { office.city = v; })));
+          });
+        };
+        drawOffices();
+        addButton(officesBlock, '+ Añadir oficina', function () {
+          s.offices.push({ country: '', name: '', street: '', city: '' });
+          drawOffices();
+        });
+
+        var socialBlock = langBlock(form, 'Redes');
+        var socialBox = make('div');
+        socialBlock.appendChild(socialBox);
+        var drawSocials = function () {
+          socialBox.innerHTML = '';
+          s.socials.forEach(function (social, i) {
+            var card = subcard(socialBox, social.name || 'Red ' + (i + 1), function () {
+              s.socials.splice(i, 1);
+              drawSocials();
+            });
+            card.appendChild(field('Nombre', textInput(social.name, function (v) { social.name = v; })));
+            card.appendChild(field('Enlace', textInput(social.url, function (v) { social.url = v.trim(); }, 'https://…')));
+          });
+        };
+        drawSocials();
+        addButton(socialBlock, '+ Añadir red', function () {
+          s.socials.push({ name: '', url: '' });
+          drawSocials();
+        });
+      }
+
+      $('page-save').addEventListener('click', async function () {
+        var snapshot = clone(data.pages);
+        data.pages = pageDraft;
+        var name = PAGES.find(function (p) { return p.key === pageKey; }).name;
+        var ok = await publish('Panel: ' + name, pendingUploads, 'view-pages');
+        if (!ok) data.pages = snapshot;
+      });
+
+      $('page-back').addEventListener('click', function () {
+        pageDraft = null;
+        pendingUploads = [];
+        show('view-pages');
+      });
+
+      $('go-pages').addEventListener('click', function () {
+        banner($('pages-banner'), '');
+        renderPagesMenu();
+        show('view-pages');
+      });
+      $('go-projects').addEventListener('click', function () {
+        banner($('list-banner'), '');
+        renderList();
+        show('view-list');
+      });
+
       // ------------------------------------------------------------ publish
 
-      async function publish(message, uploads) {
+      async function publish(message, uploads, returnTo) {
+        returnTo = returnTo || 'view-list';
+        var bannerEl = returnTo === 'view-pages' ? $('pages-banner') : $('list-banner');
+        var errorEl = returnTo === 'view-pages' ? $('page-error') : $('editor-error');
         try {
           overlay('Guardando…', 'Estamos subiendo los cambios.');
 
@@ -767,12 +1165,17 @@
             projects: data.projects,
             synopses: data.synopses,
             awards: data.awards,
+            pages: data.pages,
             uploads: [],
             message: message,
             baseCommit: data.commit,
           };
           for (var i = 0; i < uploads.length; i++) {
-            payload.uploads.push({ name: uploads[i].name, base64: await blobToBase64(uploads[i].blob) });
+            payload.uploads.push({
+              name: uploads[i].name,
+              dir: uploads[i].dir,
+              base64: await blobToBase64(uploads[i].blob),
+            });
           }
 
           var result = await api('/api/admin/publish', { method: 'POST', body: JSON.stringify(payload) });
@@ -782,15 +1185,17 @@
           $('order-banner').classList.add('hidden');
 
           editing = null;
-          renderList();
-          show('view-list');
+          pageDraft = null;
+          if (returnTo === 'view-pages') renderPagesMenu();
+          else renderList();
+          show(returnTo);
           hideOverlay();
 
           // The rebuild happens on Cloudflare's side; watch for it without
           // blocking the panel, so you can keep editing meanwhile.
-          banner($('list-banner'), 'Guardado. Publicando en la web… suele tardar alrededor de un minuto.', 'info');
+          banner(bannerEl, 'Guardado. Publicando en la web… suele tardar alrededor de un minuto.', 'info');
           waitForBuild(result.buildId).then(function (live) {
-            banner($('list-banner'), live
+            banner(bannerEl, live
               ? '✓ Listo, el cambio ya está online.'
               : '✓ Guardado. La web todavía se está actualizando; en unos minutos vas a ver el cambio.', 'ok');
           });
@@ -798,8 +1203,7 @@
         } catch (err) {
           hideOverlay();
           if (err.status === 401) { show('view-login'); return false; }
-          banner($('editor-error'), err.message);
-          banner($('list-banner'), err.message, 'error');
+          banner(errorEl, err.message);
           window.scrollTo(0, 0);
           return false;
         }
@@ -831,9 +1235,11 @@
         }
       });
 
-      $('logout').addEventListener('click', async function () {
-        await api('/api/admin/logout', { method: 'POST' }).catch(function () {});
-        show('view-login');
+      ['logout', 'logout-2'].forEach(function (id) {
+        $(id).addEventListener('click', async function () {
+          await api('/api/admin/logout', { method: 'POST' }).catch(function () {});
+          show('view-login');
+        });
       });
 
       $('new-project').addEventListener('click', function () { openEditor(-1); });
@@ -846,6 +1252,7 @@
         banner($('list-banner'), '');
         $('order-banner').classList.add('hidden');
         renderList();
+        renderPagesMenu();
         show('view-list');
       }
 
