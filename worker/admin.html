@@ -6,6 +6,7 @@
     <meta name="robots" content="noindex, nofollow" />
     <title>Panel — Entropía Studios</title>
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
       :root {
         --bg: #000;
@@ -158,17 +159,11 @@
         <h1>Entropía Studios</h1>
         <p class="sub">Panel de la web</p>
         <div id="login-error" class="banner error hidden"></div>
-        <form id="login-form">
-          <div class="field">
-            <label for="email">Email</label>
-            <input id="email" type="email" autocomplete="username" autocapitalize="off" spellcheck="false" required />
-          </div>
-          <div class="field">
-            <label for="password">Contraseña</label>
-            <input id="password" type="password" autocomplete="current-password" required />
-          </div>
-          <button class="primary" type="submit" style="width: 100%">Entrar</button>
-        </form>
+        <div id="google-button" style="display: flex; justify-content: center; min-height: 44px"></div>
+        <p class="hint" style="text-align: center; margin-top: 1.25rem">
+          Entrá con tu cuenta de correo del estudio. Solo funcionan las direcciones
+          <b id="login-domain">@entropia-studios.com</b>.
+        </p>
       </div>
     </div>
 
@@ -176,18 +171,19 @@
     <div id="view-setup" class="wrap hidden" style="max-width: 42rem; padding-top: 12vh">
       <div class="panel">
         <h1>Falta un paso de configuración</h1>
-        <p class="sub">El panel ya está publicado, pero todavía no tiene las contraseñas ni el permiso para guardar.</p>
+        <p class="sub">El panel ya está publicado, pero todavía le falta esto en Cloudflare:</p>
         <ol class="steps">
           <li>Entrá a Cloudflare → <b>Workers &amp; Pages</b> → <b>entropia-studios</b> → <b>Settings</b> → <b>Variables and Secrets</b>.</li>
           <li>
-            Agregá cada uno de estos, del tipo <b>Secret</b>:
+            Agregá:
             <ul id="missing-list" style="margin-top: 0.5rem"></ul>
           </li>
           <li>Guardá y recargá esta página.</li>
         </ol>
         <p class="hint">
-          <code>ADMIN_PASSWORD_…</code> es la contraseña de cada persona, la que elijas.
-          <code>GITHUB_TOKEN</code> es el permiso de GitHub sobre el repositorio de la web (<i>Contents: read and write</i>).
+          <code>GITHUB_TOKEN</code> va como <b>Secret</b>: es el permiso de GitHub sobre el repositorio de la web
+          (<i>Contents: read and write</i>). <code>GOOGLE_CLIENT_ID</code> va como <b>Text</b>: identifica el botón
+          de "Entrar con Google" y no es secreto.
         </p>
       </div>
     </div>
@@ -856,6 +852,7 @@
         { key: 'privacy', name: 'Política de privacidad', desc: 'El texto legal que cuelga del pie.' },
         { key: 'site', name: 'Datos del estudio', desc: 'Email, oficinas y redes: se usan en todo el sitio.' },
       ];
+      var authConfig = null; // { googleClientId, domain }
       var pageKey = null;
       var pageDraft = null;
 
@@ -1216,7 +1213,7 @@
           return true;
         } catch (err) {
           hideOverlay();
-          if (err.status === 401) { show('view-login'); return false; }
+          if (err.status === 401) { goToLogin(); return false; }
           banner(errorEl, err.message);
           window.scrollTo(0, 0);
           return false;
@@ -1237,25 +1234,60 @@
 
       // --------------------------------------------------------------- boot
 
-      $('login-form').addEventListener('submit', async function (event) {
-        event.preventDefault();
+      // Google hands the browser a signed proof of who you are; the Worker
+      // checks it and only lets the studio's own addresses through.
+      async function onGoogleCredential(response) {
         banner($('login-error'), '');
         try {
           await api('/api/admin/login', {
             method: 'POST',
-            body: JSON.stringify({ email: $('email').value, password: $('password').value }),
+            body: JSON.stringify({ credential: response.credential }),
           });
-          $('password').value = '';
           await loadAndShowList();
         } catch (err) {
           banner($('login-error'), err.message);
         }
-      });
+      }
+
+      function startGoogleButton(clientId, domain) {
+        $('login-domain').textContent = '@' + domain;
+        var tries = 0;
+        var draw = function () {
+          if (!window.google || !google.accounts || !google.accounts.id) {
+            if (++tries > 40) {
+              banner($('login-error'), 'No se pudo cargar el botón de Google. Revisá la conexión y recargá.');
+              return;
+            }
+            return setTimeout(draw, 150);
+          }
+          google.accounts.id.initialize({
+            client_id: clientId,
+            callback: onGoogleCredential,
+            hd: domain,
+            cancel_on_tap_outside: false,
+          });
+          google.accounts.id.renderButton($('google-button'), {
+            type: 'standard',
+            theme: 'filled_black',
+            size: 'large',
+            text: 'signin_with',
+            shape: 'pill',
+            locale: 'es',
+          });
+        };
+        draw();
+      }
+
+      function goToLogin() {
+        if (authConfig) startGoogleButton(authConfig.googleClientId, authConfig.domain);
+        show('view-login');
+      }
 
       ['logout', 'logout-2'].forEach(function (id) {
         $(id).addEventListener('click', async function () {
           await api('/api/admin/logout', { method: 'POST' }).catch(function () {});
-          show('view-login');
+          if (window.google && google.accounts && google.accounts.id) google.accounts.id.disableAutoSelect();
+          goToLogin();
         });
       });
 
@@ -1283,6 +1315,7 @@
       (async function boot() {
         try {
           var session = await api('/api/admin/session');
+          authConfig = { googleClientId: session.googleClientId, domain: session.domain };
           if (!session.configured) {
             var list = $('missing-list');
             list.innerHTML = '';
@@ -1296,11 +1329,11 @@
             show('view-setup');
             return;
           }
-          if (!session.authenticated) { show('view-login'); return; }
+          if (!session.authenticated) { goToLogin(); return; }
           await loadAndShowList();
         } catch (err) {
           hideOverlay();
-          show('view-login');
+          goToLogin();
           banner($('login-error'), err.message);
         }
       })();

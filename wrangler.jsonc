@@ -15,8 +15,9 @@
   "vars": {
     "GITHUB_REPO": "entropiastudios/entropia-studios.com",
     "GIT_BRANCH": "main"
+    // GOOGLE_CLIENT_ID is set in the Cloudflare dashboard (public value, not a
+    // secret): it identifies the "Sign in with Google" button.
   }
-  // Secrets (set in the Cloudflare dashboard, never in this file):
-  //   ADMIN_PASSWORD — password for /admin
-  //   GITHUB_TOKEN   — fine-grained token, Contents: read and write on this repo
+  // Secret (set in the Cloudflare dashboard, never in this file):
+  //   GITHUB_TOKEN — fine-grained token, Contents: read and write on this repo
 }

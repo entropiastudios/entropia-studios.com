@@ -5,13 +5,12 @@
 // it authenticates with a password, and writes the changes back to the
 // repository through the GitHub API, which triggers the usual redeploy.
 //
-// Secrets it needs (Cloudflare → Workers → entropia-studios → Settings):
-//   ADMIN_PASSWORD_SEBASTIAN, ADMIN_PASSWORD_JAVIER  one password per person
-//   GITHUB_TOKEN    fine-grained token with Contents: read & write on the repo
-// Plain vars (wrangler.jsonc): GITHUB_REPO, GIT_BRANCH.
+// Entering is done with Google: anyone with an @entropia-studios.com account
+// can edit, nobody else. There are no passwords to keep anywhere.
 //
-// To add someone: one line in USERS below plus their own secret. Nobody shares
-// a password, and every change is committed in that person's name.
+// Secret it needs (Cloudflare → Workers → entropia-studios → Settings):
+//   GITHUB_TOKEN   fine-grained token with Contents: read & write on the repo
+// Plain vars (wrangler.jsonc): GITHUB_REPO, GIT_BRANCH, GOOGLE_CLIENT_ID.
 
 import adminHtml from './admin.html';
 import { headCommit, treeFiles, readTextFile, commitFiles } from './github.js';
@@ -46,13 +45,10 @@ const CREDIT_KEYS = [
   'runtime',
 ];
 
-// Who can enter the panel. Each person has their own password, stored as its
-// own Cloudflare secret — nothing is shared and nothing lives in this file.
-const USERS = [
-  { email: 'sebastian@entropia-studios.com', name: 'Sebastián Cepeda', secret: 'ADMIN_PASSWORD_SEBASTIAN' },
-  { email: 'javier@entropia-studios.com', name: 'Javier Krause', secret: 'ADMIN_PASSWORD_JAVIER' },
-];
-const findUser = (email) => USERS.find((u) => u.email === String(email || '').trim().toLowerCase());
+// Only Google accounts of the studio's own domain may enter.
+const ALLOWED_DOMAIN = 'entropia-studios.com';
+const GOOGLE_ISSUERS = ['accounts.google.com', 'https://accounts.google.com'];
+const GOOGLE_CERTS_URL = 'https://www.googleapis.com/oauth2/v3/certs';
 
 const SESSION_HOURS = 8;
 const MAX_UPLOAD_BYTES = 6 * 1024 * 1024; // per file, after the browser resized it
@@ -91,34 +87,88 @@ async function sign(secret, message) {
   return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-// The session is signed with that person's own password, so changing a
-// password only logs that person out.
+// ------------------------------------------------------- Google sign-in
+
+let cachedCerts = null;
+
+async function googleKey(kid) {
+  if (!cachedCerts || cachedCerts.expires < Date.now() || !cachedCerts.keys[kid]) {
+    const res = await fetch(GOOGLE_CERTS_URL);
+    if (!res.ok) throw new Error('no se pudo hablar con Google');
+    const { keys } = await res.json();
+    cachedCerts = { expires: Date.now() + 3600 * 1000, keys: Object.fromEntries(keys.map((k) => [k.kid, k])) };
+  }
+  return cachedCerts.keys[kid] || null;
+}
+
+const b64urlBytes = (value) => {
+  const padded = value.replace(/-/g, '+').replace(/_/g, '/');
+  const binary = atob(padded + '='.repeat((4 - (padded.length % 4)) % 4));
+  return Uint8Array.from(binary, (c) => c.charCodeAt(0));
+};
+const b64urlJson = (value) => JSON.parse(new TextDecoder().decode(b64urlBytes(value)));
+
+/**
+ * Checks what Google hands the browser after signing in and returns
+ * { email, name } when it belongs to the studio. Throws otherwise.
+ */
+async function verifyGoogleIdentity(env, idToken) {
+  const parts = String(idToken || '').split('.');
+  if (parts.length !== 3) throw new Error('Respuesta de Google inválida.');
+  const [rawHeader, rawPayload, rawSignature] = parts;
+
+  const jwk = await googleKey(b64urlJson(rawHeader).kid);
+  if (!jwk) throw new Error('Respuesta de Google inválida.');
+
+  const key = await crypto.subtle.importKey('jwk', jwk, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']);
+  const ok = await crypto.subtle.verify(
+    'RSASSA-PKCS1-v1_5',
+    key,
+    b64urlBytes(rawSignature),
+    enc.encode(`${rawHeader}.${rawPayload}`)
+  );
+  if (!ok) throw new Error('Respuesta de Google inválida.');
+
+  const claims = b64urlJson(rawPayload);
+  if (claims.aud !== env.GOOGLE_CLIENT_ID) throw new Error('Respuesta de Google inválida.');
+  if (!GOOGLE_ISSUERS.includes(claims.iss)) throw new Error('Respuesta de Google inválida.');
+  if (!claims.exp || claims.exp < Math.floor(Date.now() / 1000)) throw new Error('Volvé a entrar: la sesión de Google venció.');
+
+  const email = String(claims.email || '').toLowerCase();
+  // hd proves it is a Workspace account of the studio, not a lookalike address.
+  if (claims.hd !== ALLOWED_DOMAIN || !email.endsWith(`@${ALLOWED_DOMAIN}`)) {
+    throw new Error(`El panel es solo para cuentas @${ALLOWED_DOMAIN}.`);
+  }
+  return { email, name: claims.name || email };
+}
+
+// The session is signed with a key derived from the GitHub token — the one
+// secret the Worker already has.
 async function makeSession(env, user) {
   const exp = Date.now() + SESSION_HOURS * 3600 * 1000;
-  const payload = `${user.email}|${exp}`;
-  return `${btoa(payload)}.${await sign(env[user.secret], `session-v2.${payload}`)}`;
+  const payload = `${user.email}|${user.name}|${exp}`;
+  return `${btoa(unescape(encodeURIComponent(payload)))}.${await sign(env.GITHUB_TOKEN, `session-v3.${payload}`)}`;
 }
 
 /** Returns the signed-in user, or null. */
 async function sessionUser(env, request) {
   const cookie = request.headers.get('cookie') || '';
   const match = cookie.match(/(?:^|;\s*)es_session=([^;]+)/);
-  if (!match) return null;
+  if (!match || !env.GITHUB_TOKEN) return null;
   const [encoded, sig] = decodeURIComponent(match[1]).split('.');
   if (!encoded || !sig) return null;
 
   let payload;
   try {
-    payload = atob(encoded);
+    payload = decodeURIComponent(escape(atob(encoded)));
   } catch {
     return null;
   }
-  const [email, exp] = payload.split('|');
-  const user = findUser(email);
-  if (!user || !env[user.secret]) return null;
+  const [email, name, exp] = payload.split('|');
+  if (!email || !email.endsWith(`@${ALLOWED_DOMAIN}`)) return null;
   if (!Number(exp) || Number(exp) < Date.now()) return null;
-  if (!timingSafeEqual(sig, await sign(env[user.secret], `session-v2.${payload}`))) return null;
-  return user;
+  if (!timingSafeEqual(sig, await sign(env.GITHUB_TOKEN, `session-v3.${payload}`))) return null;
+  return { email, name };
 }
 
 function sessionCookie(value, url, maxAge) {
@@ -126,14 +176,14 @@ function sessionCookie(value, url, maxAge) {
   return `es_session=${value}; Path=/; HttpOnly;${secure} SameSite=Lax; Max-Age=${maxAge}`;
 }
 
-/** Which secrets are still missing, so /admin can say exactly what to add. */
+/** What is still missing, so /admin can say exactly what to add. */
 function missingSecrets(env) {
-  const missing = USERS.filter((u) => !env[u.secret]).map((u) => u.secret);
+  const missing = [];
   if (!env.GITHUB_TOKEN) missing.push('GITHUB_TOKEN');
+  if (!env.GOOGLE_CLIENT_ID) missing.push('GOOGLE_CLIENT_ID');
   return missing;
 }
-// One password is enough to work; the panel only refuses when nobody can enter.
-const configured = (env) => Boolean(env.GITHUB_TOKEN && env.GITHUB_REPO && USERS.some((u) => env[u.secret]));
+const configured = (env) => Boolean(env.GITHUB_TOKEN && env.GITHUB_REPO && env.GOOGLE_CLIENT_ID);
 
 // Very small brute-force brake. Per isolate, which is enough to make guessing
 // impractical without adding any storage.
@@ -256,13 +306,13 @@ async function handleLogin(request, env, url) {
   const wait = throttle(ip);
   if (wait) return json({ error: `Demasiados intentos. Probá de nuevo en ${wait} segundos.` }, 429);
 
-  const { email, password } = await request.json().catch(() => ({}));
-  const user = findUser(email);
-  const stored = user && env[user.secret];
-  if (!stored || typeof password !== 'string' || !timingSafeEqual(password, stored)) {
+  const { credential } = await request.json().catch(() => ({}));
+  let user;
+  try {
+    user = await verifyGoogleIdentity(env, credential);
+  } catch (err) {
     noteFailure(ip);
-    // Same message either way: no need to tell a stranger which email exists.
-    return json({ error: 'Email o contraseña incorrectos.' }, 401);
+    return json({ error: err.message }, 401);
   }
   attempts.delete(ip);
   return json(
@@ -377,6 +427,8 @@ async function handleApi(request, env, url) {
     return json({
       configured: configured(env),
       missing: missingSecrets(env),
+      googleClientId: env.GOOGLE_CLIENT_ID || null,
+      domain: ALLOWED_DOMAIN,
       authenticated: Boolean(user),
       name: user ? user.name : null,
     });
