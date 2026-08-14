@@ -14,9 +14,10 @@
   // rule for **/*.html already covers it, so no extra "rules" entry is needed.
   "vars": {
     "GITHUB_REPO": "entropiastudios/entropia-studios.com",
-    "GIT_BRANCH": "main"
-    // GOOGLE_CLIENT_ID is set in the Cloudflare dashboard (public value, not a
-    // secret): it identifies the "Sign in with Google" button.
+    "GIT_BRANCH": "main",
+    // Public value, not a secret: it only identifies the "Sign in with Google"
+    // button. It lives here so a deploy never wipes it.
+    "GOOGLE_CLIENT_ID": "75705861253-qv74e5bfi9iu6avu63ufkq32f5nahkl5.apps.googleusercontent.com"
   }
   // Secret (set in the Cloudflare dashboard, never in this file):
   //   GITHUB_TOKEN — fine-grained token, Contents: read and write on this repo
