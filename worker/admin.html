@@ -1,0 +1,866 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Panel — Entropía Studios</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <style>
+      :root {
+        --bg: #000;
+        --surface: #101010;
+        --surface-2: #171717;
+        --line: rgba(255, 255, 255, 0.14);
+        --white: #fbfbfb;
+        --grey: #9a9a9a;
+        --red: #cc4146;
+        --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--white);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Helvetica, Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+      }
+      a { color: inherit; }
+      .caps { text-transform: uppercase; letter-spacing: 0.08em; }
+      .wrap { max-width: 68rem; margin-inline: auto; padding: 1.5rem clamp(1rem, 4vw, 3rem) 6rem; }
+
+      header.bar {
+        position: sticky; top: 0; z-index: 20;
+        display: flex; align-items: center; gap: 1rem;
+        padding: 1rem clamp(1rem, 4vw, 3rem);
+        background: rgba(0, 0, 0, 0.86);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--line);
+      }
+      .brand { font-weight: 700; font-size: 0.95rem; letter-spacing: 0.12em; text-transform: uppercase; }
+      .bar-right { margin-left: auto; display: flex; align-items: center; gap: 0.75rem; }
+
+      button {
+        font: inherit; cursor: pointer; border-radius: 100px; border: 1px solid var(--line);
+        background: transparent; color: var(--white); padding: 0.55rem 1.1rem;
+        transition: background 0.2s var(--ease), border-color 0.2s var(--ease), opacity 0.2s;
+      }
+      button:hover { background: rgba(255, 255, 255, 0.08); }
+      button[disabled] { opacity: 0.45; cursor: default; }
+      button.primary { background: var(--red); border-color: var(--red); font-weight: 600; }
+      button.primary:hover { background: #d9575c; }
+      button.ghost { border-color: transparent; color: var(--grey); padding-inline: 0.6rem; }
+      button.ghost:hover { color: var(--white); }
+      button.danger { border-color: rgba(204, 65, 70, 0.6); color: #ff8e92; }
+      button.tiny { padding: 0.25rem 0.6rem; font-size: 0.85rem; border-radius: 8px; }
+
+      input, select, textarea {
+        font: inherit; width: 100%; color: var(--white); background: var(--surface-2);
+        border: 1px solid var(--line); border-radius: 10px; padding: 0.6rem 0.75rem;
+      }
+      input:focus, select:focus, textarea:focus { outline: 2px solid rgba(204, 65, 70, 0.7); outline-offset: 1px; }
+      textarea { min-height: 8rem; resize: vertical; line-height: 1.6; }
+      label { display: block; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--grey); margin-bottom: 0.4rem; }
+      .field { margin-bottom: 1.4rem; }
+      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+      @media (max-width: 700px) { .row { grid-template-columns: 1fr; } }
+      .hint { font-size: 0.82rem; color: var(--grey); margin-top: 0.4rem; }
+
+      .card {
+        display: flex; gap: 1rem; align-items: center;
+        padding: 0.75rem; border: 1px solid var(--line); border-radius: 14px;
+        background: var(--surface); margin-bottom: 0.75rem;
+      }
+      .card img { width: 132px; height: 74px; object-fit: cover; border-radius: 8px; background: var(--surface-2); flex: none; }
+      .card-body { min-width: 0; flex: 1; }
+      .card-title { font-weight: 600; font-size: 1.05rem; }
+      .card-sub { font-size: 0.78rem; color: var(--grey); letter-spacing: 0.06em; text-transform: uppercase; }
+      .card-actions { display: flex; gap: 0.35rem; align-items: center; flex: none; }
+      @media (max-width: 640px) {
+        .card { flex-wrap: wrap; }
+        .card img { width: 96px; height: 54px; }
+        .card-actions { width: 100%; justify-content: flex-end; }
+      }
+
+      .panel { border: 1px solid var(--line); border-radius: 16px; background: var(--surface); padding: clamp(1rem, 3vw, 2rem); }
+      h1 { font-size: 1.5rem; margin: 0 0 0.35rem; }
+      h2 { font-size: 1.15rem; margin: 2rem 0 1rem; padding-top: 1.5rem; border-top: 1px dashed var(--line); }
+      h2:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
+      .sub { color: var(--grey); font-size: 0.9rem; margin: 0 0 1.5rem; }
+
+      .banner { border-radius: 12px; padding: 0.85rem 1rem; margin-bottom: 1.25rem; font-size: 0.92rem; }
+      .banner.error { background: rgba(204, 65, 70, 0.14); border: 1px solid rgba(204, 65, 70, 0.5); }
+      .banner.ok { background: rgba(70, 170, 110, 0.14); border: 1px solid rgba(70, 170, 110, 0.5); }
+      .banner.info { background: rgba(255, 255, 255, 0.06); border: 1px solid var(--line); color: var(--grey); }
+
+      .credit-row { display: grid; grid-template-columns: 15rem 1fr auto; gap: 0.6rem; margin-bottom: 0.6rem; align-items: start; }
+      @media (max-width: 700px) {
+        .credit-row { grid-template-columns: 1fr auto; row-gap: 0.35rem; margin-bottom: 1.1rem; }
+        .credit-row select { grid-column: 1 / -1; }
+      }
+
+      .photo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: start; }
+      @media (max-width: 700px) { .photo-grid { grid-template-columns: 1fr; } }
+      .photo-box { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface-2); }
+      .photo-box img { display: block; width: 100%; }
+      .photo-box .cap { font-size: 0.72rem; color: var(--grey); padding: 0.5rem 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; }
+      .thumb-frame { aspect-ratio: 16 / 9; }
+      .thumb-frame img { width: 100%; height: 100%; object-fit: cover; }
+
+      .overlay {
+        position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center;
+        background: rgba(0, 0, 0, 0.86); backdrop-filter: blur(6px); text-align: center; padding: 2rem;
+      }
+      .spinner {
+        width: 42px; height: 42px; border-radius: 50%; margin: 0 auto 1.25rem;
+        border: 3px solid rgba(255, 255, 255, 0.18); border-top-color: var(--red);
+        animation: spin 0.9s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .hidden { display: none !important; }
+      code { background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px; padding: 0.1rem 0.4rem; font-size: 0.88em; }
+      ol.steps { padding-left: 1.2rem; }
+      ol.steps li { margin-bottom: 0.6rem; }
+    </style>
+  </head>
+  <body>
+    <!-- ------------------------------------------------------------ login -->
+    <div id="view-login" class="wrap hidden" style="max-width: 26rem; padding-top: 18vh">
+      <div class="panel">
+        <h1>Entropía Studios</h1>
+        <p class="sub">Panel de la web</p>
+        <div id="login-error" class="banner error hidden"></div>
+        <form id="login-form">
+          <div class="field">
+            <label for="password">Contraseña</label>
+            <input id="password" type="password" autocomplete="current-password" required />
+          </div>
+          <button class="primary" type="submit" style="width: 100%">Entrar</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ------------------------------------------------------------ setup -->
+    <div id="view-setup" class="wrap hidden" style="max-width: 42rem; padding-top: 12vh">
+      <div class="panel">
+        <h1>Falta un paso de configuración</h1>
+        <p class="sub">El panel ya está publicado, pero todavía no tiene la contraseña ni el permiso para guardar.</p>
+        <ol class="steps">
+          <li>Entrá a Cloudflare → <b>Workers &amp; Pages</b> → <b>entropia-studios</b> → <b>Settings</b> → <b>Variables and Secrets</b>.</li>
+          <li>Agregá un secreto llamado <code>ADMIN_PASSWORD</code> con la contraseña que quieras usar acá.</li>
+          <li>Agregá otro llamado <code>GITHUB_TOKEN</code> con el token de GitHub (permiso <i>Contents: read and write</i> sobre el repositorio de la web).</li>
+          <li>Guardá y recargá esta página.</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- ------------------------------------------------------------- list -->
+    <div id="view-list" class="hidden">
+      <header class="bar">
+        <span class="brand">Entropía · Panel</span>
+        <div class="bar-right">
+          <a href="/es/" target="_blank" rel="noopener"><button class="ghost">Ver la web ↗</button></a>
+          <button id="logout" class="ghost">Salir</button>
+        </div>
+      </header>
+      <div class="wrap">
+        <div id="list-banner" class="banner ok hidden"></div>
+        <div id="order-banner" class="banner info hidden">
+          Cambiaste el orden de los proyectos.
+          <button id="publish-order" class="primary tiny" style="margin-left: 0.5rem">Publicar el nuevo orden</button>
+          <button id="cancel-order" class="ghost tiny">Deshacer</button>
+        </div>
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem">
+          <div>
+            <h1 style="margin: 0">Proyectos</h1>
+            <p class="sub" style="margin: 0">El orden de esta lista es el orden de la web.</p>
+          </div>
+          <button id="new-project" class="primary" style="margin-left: auto">+ Proyecto nuevo</button>
+        </div>
+        <div id="project-list"></div>
+      </div>
+    </div>
+
+    <!-- ----------------------------------------------------------- editor -->
+    <div id="view-editor" class="hidden">
+      <header class="bar">
+        <button id="editor-back" class="ghost">← Proyectos</button>
+        <div class="bar-right">
+          <button id="editor-delete" class="danger">Borrar proyecto</button>
+          <button id="editor-save" class="primary">Guardar y publicar</button>
+        </div>
+      </header>
+      <div class="wrap">
+        <div id="editor-error" class="banner error hidden"></div>
+        <div class="panel">
+          <h2>Ficha</h2>
+          <div class="field">
+            <label for="f-title">Título</label>
+            <input id="f-title" type="text" />
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="f-category">Categoría</label>
+              <select id="f-category"></select>
+            </div>
+            <div class="field">
+              <label for="f-status">Estado</label>
+              <select id="f-status"></select>
+              <input id="f-year" type="number" min="1900" max="2100" step="1" placeholder="Año" class="hidden" style="margin-top: 0.6rem" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="f-slug">Dirección en la web</label>
+            <input id="f-slug" type="text" />
+            <p class="hint" id="slug-hint"></p>
+          </div>
+
+          <h2>Foto</h2>
+          <div class="field">
+            <input id="f-photo" type="file" accept="image/*" style="padding: 0.5rem; background: transparent; border-style: dashed" />
+            <p class="hint">
+              Subí una sola foto, la más grande que tengas y apaisada. Se recortan solos los cuatro tamaños que usa la web.
+              En la portada se ve en 16:9.
+            </p>
+          </div>
+          <div class="photo-grid">
+            <div class="photo-box">
+              <div class="thumb-frame"><img id="prev-thumb" alt="" /></div>
+              <div class="cap">Como se ve en la portada</div>
+            </div>
+            <div class="photo-box">
+              <img id="prev-poster" alt="" />
+              <div class="cap">Como se ve en la ficha</div>
+            </div>
+          </div>
+
+          <h2>Sinopsis</h2>
+          <div class="field">
+            <label for="f-syn-es">Castellano</label>
+            <textarea id="f-syn-es"></textarea>
+          </div>
+          <div class="field">
+            <label for="f-syn-en">Inglés</label>
+            <textarea id="f-syn-en"></textarea>
+          </div>
+
+          <h2>Premios <span style="text-transform: none; color: var(--grey); font-size: 0.85rem">(opcional)</span></h2>
+          <div class="field">
+            <label for="f-awa-es">Castellano</label>
+            <textarea id="f-awa-es" style="min-height: 5rem"></textarea>
+          </div>
+          <div class="field">
+            <label for="f-awa-en">Inglés</label>
+            <textarea id="f-awa-en" style="min-height: 5rem"></textarea>
+          </div>
+
+          <h2>Créditos</h2>
+          <div id="credits"></div>
+          <button id="add-credit" class="tiny" style="margin-top: 0.5rem">+ Añadir crédito</button>
+
+          <h2>Trailer <span style="text-transform: none; color: var(--grey); font-size: 0.85rem">(opcional)</span></h2>
+          <div class="row">
+            <div class="field">
+              <label for="f-video-provider">Plataforma</label>
+              <select id="f-video-provider">
+                <option value="">Sin trailer</option>
+                <option value="youtube">YouTube</option>
+                <option value="vimeo">Vimeo</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="f-video-id">Enlace o identificador</label>
+              <input id="f-video-id" type="text" placeholder="https://youtu.be/..." />
+              <p class="hint">Podés pegar el enlace completo; se queda con lo que necesita.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------------------------------------------------------- overlay -->
+    <div id="overlay" class="overlay hidden">
+      <div>
+        <div class="spinner" id="overlay-spinner"></div>
+        <div id="overlay-title" style="font-size: 1.15rem; font-weight: 600"></div>
+        <div id="overlay-text" style="color: var(--grey); margin-top: 0.5rem; max-width: 28rem"></div>
+        <button id="overlay-close" class="hidden" style="margin-top: 1.5rem">Cerrar</button>
+      </div>
+    </div>
+
+    <script>
+      'use strict';
+
+      var CAT_ES = { Film: 'Película', Series: 'Serie', Doc: 'Documental', Short: 'Cortometraje', TV: 'TV' };
+      var STATUS_ES = {
+        production: 'En producción',
+        preproduction: 'En preproducción',
+        development: 'En desarrollo',
+        financing: 'En financiación',
+      };
+      var CREDIT_ES = {
+        producedBy: 'Producido por',
+        executiveProducers: 'Productores ejecutivos',
+        producers: 'Productores',
+        serviceProduction: 'Producción de servicios',
+        distribution: 'Distribución',
+        starring: 'Reparto',
+        writtenBy: 'Guion',
+        directedBy: 'Dirección',
+        releaseDate: 'Estreno',
+        runtime: 'Duración',
+      };
+
+      var data = null; // { commit, projects, synopses, awards, options }
+      var original = null; // untouched copy, to undo reordering
+      var editing = null; // { index, project, isNew }
+      var pendingUploads = []; // [{ name, base64 }] for the photo being replaced
+
+      var $ = function (id) { return document.getElementById(id); };
+      var show = function (id) {
+        ['view-login', 'view-setup', 'view-list', 'view-editor'].forEach(function (v) {
+          $(v).classList.toggle('hidden', v !== id);
+        });
+        window.scrollTo(0, 0);
+      };
+      var clone = function (o) { return JSON.parse(JSON.stringify(o)); };
+
+      function banner(el, message, kind) {
+        el.textContent = message;
+        el.className = 'banner ' + (kind || 'error');
+        el.classList.toggle('hidden', !message);
+      }
+
+      function overlay(title, text, opts) {
+        opts = opts || {};
+        $('overlay').classList.remove('hidden');
+        $('overlay-title').textContent = title;
+        $('overlay-text').textContent = text || '';
+        $('overlay-spinner').classList.toggle('hidden', !!opts.done);
+        $('overlay-close').classList.toggle('hidden', !opts.closable);
+      }
+      function hideOverlay() { $('overlay').classList.add('hidden'); }
+      $('overlay-close').addEventListener('click', hideOverlay);
+
+      // ------------------------------------------------------------ network
+
+      async function api(path, options) {
+        var res = await fetch(path, Object.assign({ headers: { 'content-type': 'application/json' } }, options || {}));
+        var body = await res.json().catch(function () { return {}; });
+        if (!res.ok) {
+          var err = new Error(body.error || 'Error inesperado (' + res.status + ')');
+          err.status = res.status;
+          throw err;
+        }
+        return body;
+      }
+
+      // ------------------------------------------------------------- photos
+
+      function slugify(text) {
+        return String(text)
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '')
+          .slice(0, 60);
+      }
+
+      async function blobToBase64(blob) {
+        var buffer = new Uint8Array(await blob.arrayBuffer());
+        var binary = '';
+        for (var i = 0; i < buffer.length; i += 0x8000) {
+          binary += String.fromCharCode.apply(null, buffer.subarray(i, i + 0x8000));
+        }
+        return btoa(binary);
+      }
+
+      async function shortHash(blob) {
+        var digest = await crypto.subtle.digest('SHA-256', await blob.arrayBuffer());
+        return Array.from(new Uint8Array(digest).slice(0, 4))
+          .map(function (b) { return b.toString(16).padStart(2, '0'); })
+          .join('');
+      }
+
+      // Resizes the chosen photo into the four sizes the site uses and returns
+      // both the files to upload and the fields that go into the project.
+      async function processPhoto(file, slug) {
+        var bitmap = await createImageBitmap(file);
+        var wanted = [
+          { kind: 'thumb', target: 1280 },
+          { kind: 'thumb', target: 640 },
+          { kind: 'poster', target: 1000 },
+          { kind: 'poster', target: 500 },
+        ];
+        var made = [];
+        for (var i = 0; i < wanted.length; i++) {
+          var v = wanted[i];
+          var w = Math.min(v.target, bitmap.width);
+          var h = Math.round(bitmap.height * (w / bitmap.width));
+          var canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          var ctx = canvas.getContext('2d');
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(bitmap, 0, 0, w, h);
+          var blob = await new Promise(function (resolve) { canvas.toBlob(resolve, 'image/webp', 0.85); });
+          if (!blob) throw new Error('Este navegador no pudo convertir la foto. Probá con Safari o Chrome actualizados.');
+          made.push({ kind: v.kind, target: v.target, w: w, h: h, blob: blob });
+        }
+        bitmap.close();
+
+        var version = await shortHash(made[0].blob);
+        var uploads = [];
+        var url = {};
+        var dims = {};
+        made.forEach(function (m) {
+          var name = slug + '-' + m.kind + '-' + m.target + '-' + version + '.webp';
+          uploads.push({ name: name, blob: m.blob });
+          url[m.kind + m.target] = '/images/projects/' + name;
+          dims[m.kind + m.target] = { w: m.w, h: m.h };
+        });
+
+        return {
+          uploads: uploads,
+          fields: {
+            thumb: url.thumb1280,
+            thumbSrcset: url.thumb640 + ' ' + dims.thumb640.w + 'w, ' + url.thumb1280 + ' ' + dims.thumb1280.w + 'w',
+            thumbW: dims.thumb1280.w,
+            thumbH: dims.thumb1280.h,
+            image: url.poster1000,
+            imageSrcset: url.poster500 + ' ' + dims.poster500.w + 'w, ' + url.poster1000 + ' ' + dims.poster1000.w + 'w',
+            imageW: dims.poster1000.w,
+            imageH: dims.poster1000.h,
+          },
+          previewUrl: URL.createObjectURL(made[0].blob),
+        };
+      }
+
+      // --------------------------------------------------------------- list
+
+      function renderList() {
+        var list = $('project-list');
+        list.innerHTML = '';
+        data.projects.forEach(function (p, i) {
+          var card = document.createElement('div');
+          card.className = 'card';
+
+          var img = document.createElement('img');
+          img.src = p.thumb;
+          img.alt = '';
+          card.appendChild(img);
+
+          var body = document.createElement('div');
+          body.className = 'card-body';
+          var title = document.createElement('div');
+          title.className = 'card-title';
+          title.textContent = p.title;
+          var sub = document.createElement('div');
+          sub.className = 'card-sub';
+          sub.textContent = (CAT_ES[p.category] || p.category) + ' · ' + (STATUS_ES[p.status] || p.status);
+          body.appendChild(title);
+          body.appendChild(sub);
+          card.appendChild(body);
+
+          var actions = document.createElement('div');
+          actions.className = 'card-actions';
+          var up = document.createElement('button');
+          up.className = 'tiny';
+          up.textContent = '↑';
+          up.title = 'Subir';
+          up.disabled = i === 0;
+          up.addEventListener('click', function () { move(i, -1); });
+          var down = document.createElement('button');
+          down.className = 'tiny';
+          down.textContent = '↓';
+          down.title = 'Bajar';
+          down.disabled = i === data.projects.length - 1;
+          down.addEventListener('click', function () { move(i, 1); });
+          var edit = document.createElement('button');
+          edit.className = 'tiny';
+          edit.textContent = 'Editar';
+          edit.addEventListener('click', function () { openEditor(i); });
+          actions.appendChild(up);
+          actions.appendChild(down);
+          actions.appendChild(edit);
+          card.appendChild(actions);
+
+          list.appendChild(card);
+        });
+      }
+
+      function orderChanged() {
+        return data.projects.map(function (p) { return p.slug; }).join() !==
+          original.projects.map(function (p) { return p.slug; }).join();
+      }
+
+      function move(index, delta) {
+        var target = index + delta;
+        if (target < 0 || target >= data.projects.length) return;
+        var item = data.projects.splice(index, 1)[0];
+        data.projects.splice(target, 0, item);
+        $('order-banner').classList.toggle('hidden', !orderChanged());
+        renderList();
+      }
+
+      $('cancel-order').addEventListener('click', function () {
+        data.projects = clone(original.projects);
+        $('order-banner').classList.add('hidden');
+        renderList();
+      });
+
+      $('publish-order').addEventListener('click', function () {
+        publish('Panel: nuevo orden de proyectos', []);
+      });
+
+      // ------------------------------------------------------------- editor
+
+      function fillSelect(select, values, labels) {
+        select.innerHTML = '';
+        values.forEach(function (v) {
+          var option = document.createElement('option');
+          option.value = v;
+          option.textContent = (labels && labels[v]) || v;
+          select.appendChild(option);
+        });
+      }
+
+      function renderCredits(credits) {
+        var box = $('credits');
+        box.innerHTML = '';
+        credits.forEach(function (credit, i) {
+          var row = document.createElement('div');
+          row.className = 'credit-row';
+
+          var select = document.createElement('select');
+          fillSelect(select, data.options.creditKeys, CREDIT_ES);
+          select.value = credit[0];
+          select.addEventListener('change', function () { credits[i][0] = select.value; });
+
+          var input = document.createElement('input');
+          input.type = 'text';
+          input.value = credit[1];
+          input.addEventListener('input', function () { credits[i][1] = input.value; });
+
+          var remove = document.createElement('button');
+          remove.className = 'ghost tiny';
+          remove.textContent = '✕';
+          remove.title = 'Quitar';
+          remove.addEventListener('click', function () {
+            credits.splice(i, 1);
+            renderCredits(credits);
+          });
+
+          row.appendChild(select);
+          row.appendChild(input);
+          row.appendChild(remove);
+          box.appendChild(row);
+        });
+      }
+
+      function blankProject() {
+        return {
+          slug: '',
+          title: '',
+          category: 'Film',
+          status: 'development',
+          image: '',
+          thumb: '',
+          credits: [['producedBy', 'Entropía Studios']],
+          thumbSrcset: '',
+          thumbW: 0,
+          thumbH: 0,
+          imageSrcset: '',
+          imageW: 0,
+          imageH: 0,
+        };
+      }
+
+      function openEditor(index) {
+        var isNew = index === -1;
+        var project = isNew ? blankProject() : clone(data.projects[index]);
+        editing = { index: index, project: project, isNew: isNew, slugTouched: !isNew };
+        pendingUploads = [];
+
+        banner($('editor-error'), '');
+        $('editor-delete').classList.toggle('hidden', isNew);
+
+        $('f-title').value = project.title;
+        fillSelect($('f-category'), data.options.categories, CAT_ES);
+        $('f-category').value = project.category;
+
+        var isYear = /^\d{4}$/.test(String(project.status));
+        fillSelect($('f-status'), data.options.statuses.concat(['__year__']),
+          Object.assign({}, STATUS_ES, { __year__: 'Estrenada (año)' }));
+        $('f-status').value = isYear ? '__year__' : project.status;
+        $('f-year').value = isYear ? project.status : '';
+        $('f-year').classList.toggle('hidden', !isYear);
+
+        $('f-slug').value = project.slug;
+        updateSlugHint();
+
+        $('f-photo').value = '';
+        $('prev-thumb').src = project.thumb || '';
+        $('prev-poster').src = project.image || '';
+
+        var syn = (data.synopses[project.slug] || {});
+        var awa = (data.awards[project.slug] || {});
+        $('f-syn-es').value = syn.es || '';
+        $('f-syn-en').value = syn.en || '';
+        $('f-awa-es').value = awa.es || '';
+        $('f-awa-en').value = awa.en || '';
+
+        $('f-video-provider').value = project.video ? project.video.provider : '';
+        $('f-video-id').value = project.video ? project.video.id : '';
+
+        renderCredits(project.credits);
+        show('view-editor');
+      }
+
+      function updateSlugHint() {
+        var slug = $('f-slug').value || '…';
+        $('slug-hint').textContent = 'entropia-studios.com/es/work/' + slug +
+          (editing && editing.isNew ? '' : ' — cambiarla rompe los enlaces que ya circulan.');
+      }
+
+      $('f-title').addEventListener('input', function () {
+        if (editing && editing.isNew && !editing.slugTouched) {
+          $('f-slug').value = slugify($('f-title').value);
+          updateSlugHint();
+        }
+      });
+      $('f-slug').addEventListener('input', function () {
+        if (editing) editing.slugTouched = true;
+        $('f-slug').value = slugify($('f-slug').value);
+        updateSlugHint();
+      });
+      $('f-status').addEventListener('change', function () {
+        $('f-year').classList.toggle('hidden', $('f-status').value !== '__year__');
+      });
+      $('add-credit').addEventListener('click', function () {
+        editing.project.credits.push(['producers', '']);
+        renderCredits(editing.project.credits);
+      });
+      $('editor-back').addEventListener('click', function () {
+        editing = null;
+        pendingUploads = [];
+        renderList();
+        show('view-list');
+      });
+
+      $('f-photo').addEventListener('change', async function () {
+        var file = $('f-photo').files[0];
+        if (!file) return;
+        var slug = $('f-slug').value || slugify($('f-title').value) || 'proyecto';
+        try {
+          overlay('Preparando la foto…', 'Se están generando los cuatro tamaños.');
+          var result = await processPhoto(file, slug);
+          pendingUploads = result.uploads;
+          Object.assign(editing.project, result.fields);
+          $('prev-thumb').src = result.previewUrl;
+          $('prev-poster').src = result.previewUrl;
+          hideOverlay();
+        } catch (err) {
+          hideOverlay();
+          banner($('editor-error'), err.message);
+        }
+      });
+
+      function videoIdFrom(value, provider) {
+        var text = String(value || '').trim();
+        if (!text) return '';
+        var match;
+        if (provider === 'youtube') {
+          match = text.match(/(?:v=|youtu\.be\/|\/embed\/|\/shorts\/)([A-Za-z0-9_-]{6,})/);
+        } else {
+          match = text.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+        }
+        return match ? match[1] : text;
+      }
+
+      function collectEditor() {
+        var project = editing.project;
+        project.title = $('f-title').value.trim();
+        project.category = $('f-category').value;
+        project.status = $('f-status').value === '__year__' ? String($('f-year').value || '').trim() : $('f-status').value;
+        project.slug = $('f-slug').value.trim();
+
+        var provider = $('f-video-provider').value;
+        var videoId = videoIdFrom($('f-video-id').value, provider);
+        if (provider && videoId) project.video = { provider: provider, id: videoId };
+        else delete project.video;
+
+        project.credits = project.credits.filter(function (c) { return c[1].trim(); })
+          .map(function (c) { return [c[0], c[1].trim()]; });
+
+        if (!project.title) return 'Falta el título.';
+        if (!project.slug) return 'Falta la dirección en la web.';
+        if ($('f-status').value === '__year__' && !/^\d{4}$/.test(project.status)) return 'El año tiene que tener cuatro cifras.';
+        if (!project.thumb || !project.image) return 'Falta la foto del proyecto.';
+        var clash = data.projects.some(function (p, i) { return p.slug === project.slug && i !== editing.index; });
+        if (clash) return 'Ya hay otro proyecto con esa dirección.';
+
+        var previousSlug = editing.isNew ? null : data.projects[editing.index].slug;
+        if (editing.isNew) data.projects.unshift(project);
+        else data.projects[editing.index] = project;
+
+        if (previousSlug && previousSlug !== project.slug) {
+          delete data.synopses[previousSlug];
+          delete data.awards[previousSlug];
+        }
+
+        var synEs = $('f-syn-es').value.trim();
+        var synEn = $('f-syn-en').value.trim();
+        if (synEs || synEn) data.synopses[project.slug] = { en: synEn, es: synEs };
+        else delete data.synopses[project.slug];
+
+        var awaEs = $('f-awa-es').value.trim();
+        var awaEn = $('f-awa-en').value.trim();
+        if (awaEs || awaEn) data.awards[project.slug] = { en: awaEn, es: awaEs };
+        else delete data.awards[project.slug];
+
+        return null;
+      }
+
+      $('editor-save').addEventListener('click', async function () {
+        var snapshot = { projects: clone(data.projects), synopses: clone(data.synopses), awards: clone(data.awards) };
+        var problem = collectEditor();
+        if (problem) {
+          banner($('editor-error'), problem);
+          window.scrollTo(0, 0);
+          return;
+        }
+        var name = editing.project.title;
+        var ok = await publish((editing.isNew ? 'Panel: nuevo proyecto ' : 'Panel: ') + name, pendingUploads);
+        if (!ok) {
+          data.projects = snapshot.projects;
+          data.synopses = snapshot.synopses;
+          data.awards = snapshot.awards;
+        }
+      });
+
+      $('editor-delete').addEventListener('click', async function () {
+        var project = data.projects[editing.index];
+        if (!window.confirm('¿Borrar "' + project.title + '" de la web? Las fotos quedan guardadas por si volvés atrás.')) return;
+        var snapshot = { projects: clone(data.projects), synopses: clone(data.synopses), awards: clone(data.awards) };
+        data.projects.splice(editing.index, 1);
+        delete data.synopses[project.slug];
+        delete data.awards[project.slug];
+        var ok = await publish('Panel: baja de ' + project.title, []);
+        if (!ok) {
+          data.projects = snapshot.projects;
+          data.synopses = snapshot.synopses;
+          data.awards = snapshot.awards;
+        }
+      });
+
+      // ------------------------------------------------------------ publish
+
+      async function publish(message, uploads) {
+        try {
+          overlay('Guardando…', 'Estamos subiendo los cambios.');
+
+          var payload = {
+            projects: data.projects,
+            synopses: data.synopses,
+            awards: data.awards,
+            uploads: [],
+            message: message,
+            baseCommit: data.commit,
+          };
+          for (var i = 0; i < uploads.length; i++) {
+            payload.uploads.push({ name: uploads[i].name, base64: await blobToBase64(uploads[i].blob) });
+          }
+
+          var result = await api('/api/admin/publish', { method: 'POST', body: JSON.stringify(payload) });
+          data.commit = result.commit;
+          original = { projects: clone(data.projects) };
+          pendingUploads = [];
+          $('order-banner').classList.add('hidden');
+
+          editing = null;
+          renderList();
+          show('view-list');
+          hideOverlay();
+
+          // The rebuild happens on Cloudflare's side; watch for it without
+          // blocking the panel, so you can keep editing meanwhile.
+          banner($('list-banner'), 'Guardado. Publicando en la web… suele tardar alrededor de un minuto.', 'info');
+          waitForBuild(result.buildId).then(function (live) {
+            banner($('list-banner'), live
+              ? '✓ Listo, el cambio ya está online.'
+              : '✓ Guardado. La web todavía se está actualizando; en unos minutos vas a ver el cambio.', 'ok');
+          });
+          return true;
+        } catch (err) {
+          hideOverlay();
+          if (err.status === 401) { show('view-login'); return false; }
+          banner($('editor-error'), err.message);
+          banner($('list-banner'), err.message, 'error');
+          window.scrollTo(0, 0);
+          return false;
+        }
+      }
+
+      async function waitForBuild(buildId) {
+        var deadline = Date.now() + 4 * 60 * 1000;
+        while (Date.now() < deadline) {
+          await new Promise(function (r) { setTimeout(r, 5000); });
+          try {
+            var res = await fetch('/build-id.txt?t=' + Date.now(), { cache: 'no-store' });
+            if (res.ok && (await res.text()).trim() === String(buildId)) return true;
+          } catch (err) { /* the deploy swap can drop a request; keep waiting */ }
+        }
+        return false;
+      }
+
+      // --------------------------------------------------------------- boot
+
+      $('login-form').addEventListener('submit', async function (event) {
+        event.preventDefault();
+        banner($('login-error'), '');
+        try {
+          await api('/api/admin/login', { method: 'POST', body: JSON.stringify({ password: $('password').value }) });
+          $('password').value = '';
+          await loadAndShowList();
+        } catch (err) {
+          banner($('login-error'), err.message);
+        }
+      });
+
+      $('logout').addEventListener('click', async function () {
+        await api('/api/admin/logout', { method: 'POST' }).catch(function () {});
+        show('view-login');
+      });
+
+      $('new-project').addEventListener('click', function () { openEditor(-1); });
+
+      async function loadAndShowList() {
+        overlay('Cargando…', '');
+        data = await api('/api/admin/data');
+        original = { projects: clone(data.projects) };
+        hideOverlay();
+        banner($('list-banner'), '');
+        $('order-banner').classList.add('hidden');
+        renderList();
+        show('view-list');
+      }
+
+      (async function boot() {
+        try {
+          var session = await api('/api/admin/session');
+          if (!session.configured) { show('view-setup'); return; }
+          if (!session.authenticated) { show('view-login'); return; }
+          await loadAndShowList();
+        } catch (err) {
+          hideOverlay();
+          show('view-login');
+          banner($('login-error'), err.message);
+        }
+      })();
+    </script>
+  </body>
+</html>

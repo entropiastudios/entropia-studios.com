@@ -1,9 +1,22 @@
 {
   "name": "entropia-studios",
   "compatibility_date": "2024-11-01",
+  // The site itself is static: every public URL is served straight from ./dist.
+  // The Worker only exists to serve the private editor at /admin.
+  "main": "worker/index.js",
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page"
+  },
+  // worker/admin.html is imported as a plain string — Wrangler's built-in Text
+  // rule for **/*.html already covers it, so no extra "rules" entry is needed.
+  "vars": {
+    "GITHUB_REPO": "entropiastudios/entropia-studios.com",
+    "GIT_BRANCH": "main"
   }
+  // Secrets (set in the Cloudflare dashboard, never in this file):
+  //   ADMIN_PASSWORD — password for /admin
+  //   GITHUB_TOKEN   — fine-grained token, Contents: read and write on this repo
 }

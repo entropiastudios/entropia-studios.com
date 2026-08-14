@@ -1,6 +1,8 @@
 # Allow all crawlers, including AI/LLM crawlers, to index the site.
+# /admin is the private editor — nothing to index there.
 User-agent: *
 Allow: /
+Disallow: /admin
 
 # AI crawlers (explicit — welcome)
 User-agent: GPTBot
