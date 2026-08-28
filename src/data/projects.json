@@ -400,54 +400,6 @@
     "imageH": 254
   },
   {
-    "slug": "el-color-del-cielo",
-    "title": "El Color del Cielo",
-    "category": "Film",
-    "status": "2022",
-    "image": "/images/projects/el-color-del-cielo-poster-1000.webp",
-    "thumb": "/images/projects/el-color-del-cielo-thumb-1280.webp",
-    "credits": [
-      [
-        "producedBy",
-        "89 Productions, Arnold Films, Orisono"
-      ],
-      [
-        "producers",
-        "Ivan Geisser, Guillem Luna, Timothy Ross, Alexander Stratigenas, Javier Krause"
-      ],
-      [
-        "distribution",
-        "Begin Again Films"
-      ],
-      [
-        "starring",
-        "Marta Etura, Francesc Garrido, Carlos Leal, Agustina Leoni, Daniel Rohr"
-      ],
-      [
-        "writtenBy",
-        "Joan-Marc Zapata, Lluís Van Eeckhout"
-      ],
-      [
-        "directedBy",
-        "Joan-Marc Zapata"
-      ],
-      [
-        "runtime",
-        "89 min."
-      ]
-    ],
-    "video": {
-      "provider": "youtube",
-      "id": "Vk-h0SI-DC4"
-    },
-    "thumbSrcset": "/images/projects/el-color-del-cielo-thumb-640.webp 640w, /images/projects/el-color-del-cielo-thumb-1280.webp 1280w",
-    "thumbW": 1280,
-    "thumbH": 438,
-    "imageSrcset": "/images/projects/el-color-del-cielo-poster-500.webp 500w, /images/projects/el-color-del-cielo-poster-1000.webp 1000w",
-    "imageW": 1000,
-    "imageH": 1415
-  },
-  {
     "slug": "contigo-capitan",
     "title": "Contigo Capitán",
     "category": "Series",
