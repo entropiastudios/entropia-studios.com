@@ -16,14 +16,9 @@ The site is bilingual (English, Spanish) with parallel URLs under /en/ and /es/.
 - [Body Hunters](https://entropia-studios.com/en/work/body-hunters/) — Series, in development
 - [Inner Portrait](https://entropia-studios.com/en/work/inner-portrait/) — Documentary, 2025 (Disney+)
 - [Bionica](https://entropia-studios.com/en/work/bionica/) — Feature film, 2025
-- [You and Everything Else](https://entropia-studios.com/en/work/you-and-everything-else/) — Series, 2025 (Netflix, Kakao Entertainment)
-- [Villa Malaga](https://entropia-studios.com/en/work/villa-malaga/) — Documentary, 2024. Winner of the Silver Biznaga at the 27th Málaga Film Festival
-- [NCCR Robotics](https://entropia-studios.com/en/work/nccr-robotics/) — Documentary, 2023
 - [El Color del Cielo](https://entropia-studios.com/en/work/el-color-del-cielo/) — Feature film, 2022
 - [Contigo Capitán](https://entropia-studios.com/en/work/contigo-capitan/) — Series, 2022 (Netflix)
 - [L'Arminuta](https://entropia-studios.com/en/work/larminuta/) — Feature film, 2021 (HBO)
-- [Singularity](https://entropia-studios.com/en/work/singularity/) — Feature film, 2017 (starring John Cusack)
-- [Himmelfahrtskommando](https://entropia-studios.com/en/work/himmelfahrtskommando/) — Feature film, 2013
 
 ## Offices
 - Spain: Entropía Studios S.L., Calle Princesa 31, 2-2, 28008 Madrid
