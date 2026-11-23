@@ -1,6 +1,6 @@
 # Entropía Studios
 
-> Entropía Studios is a Madrid-based film and series production company founded by Sebastián Cepeda and Javier Krause. It develops and produces feature films, documentaries, series and docuseries with a clear international vocation, believing in entropy as a fertile territory where powerful ideas emerge from chaos. Contact: info@entropia-studios.com
+> Entropía Studios is a Madrid-based film and series production company founded by Javier Krause. It develops and produces feature films, documentaries, series and docuseries with a clear international vocation, believing in entropy as a fertile territory where powerful ideas emerge from chaos. Contact: info@entropia-studios.com
 
 The site is bilingual (English, Spanish) with parallel URLs under /en/ and /es/.
 
@@ -27,6 +27,5 @@ The site is bilingual (English, Spanish) with parallel URLs under /en/ and /es/.
 
 ## Offices
 - Spain: Entropía Studios S.L., Calle Princesa 31, 2-2, 28008 Madrid
-- Switzerland: Viven Film AG, Kernstrasse 57, 8004 Zurich
 - Netherlands: KFP, Mezenlaan 5, 1403BP Bussum
 - Italy: Garage Entertainment SRL, Viale del Vignola 111, 00196 Roma
