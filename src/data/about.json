@@ -2,7 +2,7 @@
   "en": {
     "heading": "About",
     "paragraphs": [
-      "Entropía Studios is a Madrid-based production company founded by Sebastián Cepeda and Javier Krause.",
+      "Entropía Studios is a Madrid-based production company founded by Javier Krause.",
       "Our name defines our essence: we deeply believe in entropy as a fertile territory, where powerful ideas and new narrative orders emerge from chaos.",
       "Entropía Studios was founded to develop and produce cinema — including fiction feature films, documentaries, series, and docuseries — with a clear international vocation and a constant commitment to quality.",
       "Our experience working on projects that connect globally allows us to build creative and productive bridges that strengthen every story.",
@@ -13,23 +13,18 @@
     "teamHeading": "Team",
     "team": [
       {
-        "name": "Sebastián E. Cepeda",
-        "role": "CEO | Producer",
-        "img": "/images/team/sebastian-cepeda.webp"
-      },
-      {
         "name": "Javier C. Krause",
         "role": "Producer | Director | Screenwriter",
         "img": "/images/team/javier-krause.webp"
       }
     ],
-    "network": "Together, Sebastián E. Cepeda and Javier C. Krause lead a network of four production companies strategically positioned across Europe — a constellation of creative hubs designed to support films wherever they need to be made. Through local partnerships, access to regional incentives, and seasoned crews on the ground, we move fluidly between territories, transforming every location into a home for storytelling.",
+    "network": "Javier C. Krause leads a network of three production companies strategically positioned across Europe — a constellation of creative hubs designed to support films wherever they need to be made. Through local partnerships, access to regional incentives, and seasoned crews on the ground, we move fluidly between territories, transforming every location into a home for storytelling.",
     "officesHeading": "Offices"
   },
   "es": {
     "heading": "Nosotros",
     "paragraphs": [
-      "Entropía Studios es una productora con sede en Madrid fundada por Sebastián Cepeda y Javier Krause.",
+      "Entropía Studios es una productora con sede en Madrid fundada por Javier Krause.",
       "Nuestro nombre define nuestra esencia: creemos profundamente en la entropía como un territorio fértil, donde del caos surgen ideas poderosas y nuevos órdenes narrativos.",
       "Entropía Studios nace con el objetivo de desarrollar y producir cine —largometrajes de ficción, documentales, series y docuseries— con una clara vocación internacional y un compromiso constante con la calidad.",
       "Nuestra experiencia en proyectos con proyección global nos permite construir puentes creativos y productivos que fortalecen cada historia.",
@@ -40,17 +35,12 @@
     "teamHeading": "Equipo",
     "team": [
       {
-        "name": "Sebastián E. Cepeda",
-        "role": "CEO | Productor",
-        "img": "/images/team/sebastian-cepeda.webp"
-      },
-      {
         "name": "Javier C. Krause",
         "role": "Productor | Director | Guionista",
         "img": "/images/team/javier-krause.webp"
       }
     ],
-    "network": "Juntos, Sebastián E. Cepeda y Javier C. Krause lideran una red de cuatro productoras estratégicamente ubicadas en Europa: una constelación de polos creativos diseñada para acompañar los proyectos allí donde necesiten realizarse. A través de alianzas locales, acceso a incentivos regionales y equipos experimentados sobre el terreno, nos movemos con fluidez entre territorios, convirtiendo cada lugar en un hogar para las historias.",
+    "network": "Javier C. Krause lidera una red de tres productoras estratégicamente ubicadas en Europa: una constelación de polos creativos diseñada para acompañar los proyectos allí donde necesiten realizarse. A través de alianzas locales, acceso a incentivos regionales y equipos experimentados sobre el terreno, nos movemos con fluidez entre territorios, convirtiendo cada lugar en un hogar para las historias.",
     "officesHeading": "Oficinas"
   }
 }
